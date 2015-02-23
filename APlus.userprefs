@@ -1,9 +1,11 @@
 ﻿<Properties StartupItem="APlus\APlus.csproj">
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Android.04c873cc97114bb1" />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Android.Nexus_5_API_21_x86" />
   <MonoDevelop.Ide.Workbench ActiveDocument="APlus\MainActivity.cs">
     <Files>
-      <File FileName="APlus\MainActivity.cs" Line="51" Column="51" />
-      <File FileName="APlus\Functions.cs" Line="30" Column="30" />
+      <File FileName="APlus\MainActivity.cs" Line="40" Column="40" />
+      <File FileName="APlus\Functions.cs" Line="1" Column="1" />
+      <File FileName="APlus\LoginActivity.cs" Line="1" Column="1" />
+      <File FileName="APlus\Resources\menu\optionsMenu.xml" Line="8" Column="8" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

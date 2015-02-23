@@ -60,14 +60,17 @@ namespace APlus
 		public partial class Id
 		{
 			
-			// aapt resource value: 0x7f050002
-			public const int btnLogin = 2131034114;
+			// aapt resource value: 0x7f060003
+			public const int action_settings = 2131099651;
 			
-			// aapt resource value: 0x7f050000
-			public const int txtEmail = 2131034112;
+			// aapt resource value: 0x7f060002
+			public const int btnLogin = 2131099650;
 			
-			// aapt resource value: 0x7f050001
-			public const int txtPassword = 2131034113;
+			// aapt resource value: 0x7f060000
+			public const int txtEmail = 2131099648;
+			
+			// aapt resource value: 0x7f060001
+			public const int txtPassword = 2131099649;
 			
 			static Id()
 			{
@@ -83,7 +86,10 @@ namespace APlus
 		{
 			
 			// aapt resource value: 0x7f030000
-			public const int Main = 2130903040;
+			public const int Login = 2130903040;
+			
+			// aapt resource value: 0x7f030001
+			public const int Main = 2130903041;
 			
 			static Layout()
 			{
@@ -91,6 +97,22 @@ namespace APlus
 			}
 			
 			private Layout()
+			{
+			}
+		}
+		
+		public partial class Menu
+		{
+			
+			// aapt resource value: 0x7f050000
+			public const int optionsMenu = 2131034112;
+			
+			static Menu()
+			{
+				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
+			}
+			
+			private Menu()
 			{
 			}
 		}

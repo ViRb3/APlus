@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APlus", "APlus\APlus.csproj", "{A7C19A55-B21D-4D44-8BE0-857E4B59CBB2}"
 EndProject
 Global
@@ -11,7 +13,11 @@ Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{A7C19A55-B21D-4D44-8BE0-857E4B59CBB2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A7C19A55-B21D-4D44-8BE0-857E4B59CBB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A7C19A55-B21D-4D44-8BE0-857E4B59CBB2}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 		{A7C19A55-B21D-4D44-8BE0-857E4B59CBB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A7C19A55-B21D-4D44-8BE0-857E4B59CBB2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 EndGlobal
