@@ -1,0 +1,14 @@
+﻿<Properties StartupItem="APlus\APlus.csproj">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Android.04c873cc97114bb1" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="APlus\MainActivity.cs">
+    <Files>
+      <File FileName="APlus\MainActivity.cs" Line="51" Column="51" />
+      <File FileName="APlus\Functions.cs" Line="30" Column="30" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.ItemProperties.APlus MonoForAntroid.PreferredDevice="Nexus 4" />
+</Properties>

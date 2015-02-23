@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textEmailAddress"
+        android:ems="10"
+        android:id="@+id/txtEmail"
+        android:layout_alignParentTop="true"
+        android:hint="E-mail"
+        android:layout_marginTop="33dp" />
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textPassword"
+        android:ems="10"
+        android:id="@+id/txtPassword"
+        android:layout_below="@+id/txtEmail"
+        android:hint="Password"
+        android:layout_marginTop="30dp" />
+    <Button
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:text="Log in"
+        android:id="@+id/btnLogin"
+        android:layout_centerInParent="true"
+        android:layout_below="@+id/txtPassword"
+        android:layout_marginTop="70dp" />
+</RelativeLayout>
