@@ -92,6 +92,21 @@ namespace APlus
 			return stringBuilder.ToString();
 		}
 
+		public static void ClearCookies()
+		{
+			_signedInCookie = null;
+			_webClient.CookieJar = new CookieContainer ();
+		}
+
+		public static void DeleteSetting(string settingName)
+		{
+			var preferences = Application.Context.GetSharedPreferences(settingName, FileCreationMode.Private);
+			var preferencesEditor = preferences.Edit();
+
+			preferencesEditor.Clear ();
+			preferencesEditor.Commit ();
+		}
+
         public static void SaveSetting(string settingName, Tuple<string, string>[] settings)
         {
 

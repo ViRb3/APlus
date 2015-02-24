@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
+using System.Collections.Specialized;
 using Android.App;
 using Android.Content;
 using Android.OS;
@@ -32,7 +32,18 @@ namespace APlus
 			
 		public override bool OnOptionsItemSelected(IMenuItem item) 
 		{
-			Toast.MakeText(Application.Context, "To be implemented!", ToastLength.Short).Show();
+			var data = new NameValueCollection();
+			data.Add("logout", string.Empty);
+
+			string response = Functions.Request (data);
+			if (response == "Logged out successfully") {
+				Functions.DeleteSetting ("signedInCookie");
+				Functions.ClearCookies ();
+				StartActivity (typeof(LoginActivity));
+				Finish ();
+			} else
+				Toast.MakeText (Application.Context, response, ToastLength.Long).Show ();
+
 			return base.OnOptionsItemSelected (item);
 		}
 	}
