@@ -29,5 +29,7 @@
         android:id="@+id/btnLogin"
         android:layout_centerInParent="true"
         android:layout_below="@+id/txtPassword"
-        android:layout_marginTop="70dp" />
+        android:layout_marginTop="70dp"
+        android:textColor="#ffffff"
+        android:background="@drawable/myButton" />
 </RelativeLayout>

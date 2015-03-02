@@ -47,6 +47,9 @@ namespace APlus
 			// aapt resource value: 0x7f020000
 			public const int Icon = 2130837504;
 			
+			// aapt resource value: 0x7f020001
+			public const int myButton = 2130837505;
+			
 			static Drawable()
 			{
 				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
@@ -60,11 +63,14 @@ namespace APlus
 		public partial class Id
 		{
 			
-			// aapt resource value: 0x7f060003
-			public const int action_settings = 2131099651;
+			// aapt resource value: 0x7f060004
+			public const int action_settings = 2131099652;
 			
 			// aapt resource value: 0x7f060002
 			public const int btnLogin = 2131099650;
+			
+			// aapt resource value: 0x7f060003
+			public const int gridview = 2131099651;
 			
 			// aapt resource value: 0x7f060000
 			public const int txtEmail = 2131099648;

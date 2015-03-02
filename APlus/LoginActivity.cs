@@ -11,7 +11,7 @@ using System.Collections.Specialized;
 
 namespace APlus
 {
-	[Activity (Label = "APlus", MainLauncher = true, Icon = "@drawable/icon")]
+	[Activity]
 	public class LoginActivity : Activity
 	{
 		Button _btnLogin;
@@ -19,14 +19,6 @@ namespace APlus
 
 		protected override void OnCreate (Bundle bundle)
 		{
-			var data = new NameValueCollection();
-			data.Add("login", string.Empty);
-
-			if (Functions.Request (data) == "Already logged in!") {
-				StartActivity (typeof(MainActivity));
-				Finish ();
-			}
-
 			base.OnCreate (bundle);
 			SetContentView (Resource.Layout.Login);
 
@@ -39,18 +31,24 @@ namespace APlus
 
 		void btnLogin_OnClick(object sender, EventArgs e)
 		{
+			if (Functions.IsOffline(true)) {
+				Toast.MakeText (Application.Context, "No internet connection!", ToastLength.Short).Show ();
+				return;
+			}
+
 			var data = new NameValueCollection();
 			data.Add("login", string.Empty);
 			data.Add("email", _txtEmail.Text);
 			data.Add("password", Functions.GetMd5(_txtPassword.Text));
 
-			string reply = Functions.Request(data);
+			string reply = WebFunctions.Request(data);
 
 			if (reply != "Login success!") {
 				Toast.MakeText (this, reply, ToastLength.Short).Show();
 				return;
 			}			
 
+			Functions.SaveSetting ("settings", "loggedIn", "true");
 			StartActivity(typeof(MainActivity));
 			Finish();
 		}
