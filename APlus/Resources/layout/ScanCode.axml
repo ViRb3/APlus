@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+    <TextView
+        android:text="Student grade"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/txtViewGradeLabel"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="25dp" />
+    <SeekBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/txtViewGradeLabel"
+        android:id="@+id/seekBarGrade"
+        android:max="4"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp" />
+    <TextView
+        android:text="2"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/seekBarGrade"
+        android:id="@+id/txtViewGrade"
+        android:layout_centerHorizontal="true" />
+    <Button
+        android:text="Commit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/txtViewGrade"
+        android:id="@+id/btnGradeCommit"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp" />
+</RelativeLayout>

@@ -46,10 +46,21 @@ namespace APlus
 			if (reply != "Login success!") {
 				Toast.MakeText (this, reply, ToastLength.Short).Show();
 				return;
-			}			
+			}	
+				
+			data.Clear ();
+			data.Add("getaccounttype", string.Empty);
 
+			reply = WebFunctions.Request(data);
+
+			if (reply != "student" && reply != "teacher") {
+				Toast.MakeText (this, "Unrecognized account type!", ToastLength.Short).Show();
+				return;
+			}		
+
+			Functions.SaveSetting ("settings", "accountType", reply);
 			Functions.SaveSetting ("settings", "loggedIn", "true");
-			StartActivity(typeof(MainActivity));
+			StartActivity (typeof(MainActivity));
 			Finish();
 		}
 	}
