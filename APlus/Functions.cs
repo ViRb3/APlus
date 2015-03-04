@@ -15,7 +15,7 @@ namespace APlus
 			if (update) {
 				try {
 					bool loggedIn = Functions.IsLoggedIn();
-					Functions.DeleteSetting("settings", "offline");
+					Functions.DeleteSetting ("settings", "offline");
 				}
 				catch (Exception) {
 					Functions.SaveSetting ("settings", "offline", "true");

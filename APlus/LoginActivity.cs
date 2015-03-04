@@ -19,6 +19,10 @@ namespace APlus
 
 		protected override void OnCreate (Bundle bundle)
 		{
+			Functions.DeleteSetting ("signedInCookie");
+			Functions.DeleteSetting ("settings", "loggedIn");
+			WebFunctions.ClearCookies();
+
 			base.OnCreate (bundle);
 			SetContentView (Resource.Layout.Login);
 

@@ -63,8 +63,8 @@ namespace APlus
 		public partial class Id
 		{
 			
-			// aapt resource value: 0x7f06000d
-			public const int action_settings = 2131099661;
+			// aapt resource value: 0x7f06000e
+			public const int action_settings = 2131099662;
 			
 			// aapt resource value: 0x7f060005
 			public const int btnGradeClass = 2131099653;
@@ -89,6 +89,9 @@ namespace APlus
 			
 			// aapt resource value: 0x7f060008
 			public const int seekBarGrade = 2131099656;
+			
+			// aapt resource value: 0x7f06000d
+			public const int textItem = 2131099661;
 			
 			// aapt resource value: 0x7f06000a
 			public const int textView1 = 2131099658;
@@ -129,6 +132,9 @@ namespace APlus
 			
 			// aapt resource value: 0x7f030003
 			public const int ScanCode = 2130903043;
+			
+			// aapt resource value: 0x7f030004
+			public const int SpinnerItem = 2130903044;
 			
 			static Layout()
 			{

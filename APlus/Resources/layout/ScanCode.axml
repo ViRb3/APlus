@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/txtViewGradeLabel"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="25dp" />
+        android:layout_marginTop="35dp" />
     <SeekBar
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -27,14 +27,6 @@
         android:layout_below="@id/seekBarGrade"
         android:id="@+id/txtViewGrade"
         android:layout_centerHorizontal="true" />
-    <TextView
-        android:text="Student grade"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/txtViewGradeLabel"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="25dp" />
     <TextView
         android:text="Subject"
         android:textAppearance="?android:attr/textAppearanceLarge"
@@ -60,5 +52,5 @@
         android:layout_below="@id/editTextSubject"
         android:id="@+id/btnGradeCommit"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="30dp" />
+        android:layout_marginTop="40dp" />
 </RelativeLayout>

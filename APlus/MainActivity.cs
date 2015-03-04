@@ -11,37 +11,31 @@ using Android.Views;
 using Android.Widget;
 using System.Threading;
 using System.Net;
+using System.Text.RegularExpressions;
 
 namespace APlus
 {
 	[Activity (Label = "APlus", MainLauncher = true, Icon = "@drawable/icon")]			
 	public class MainActivity : Activity
 	{
+		private bool _checkedStatus;
 		protected override void OnCreate (Bundle bundle)
 		{
+			base.OnCreate (bundle);
+
 			string loggedIn = Functions.GetSetting ("settings", "loggedIn");
 
 			if (!object.Equals (loggedIn, "true")) {
 				StartActivity (typeof(LoginActivity));
 				Finish ();
+				return;
 			} 
 			else new Thread (CheckLogin).Start ();
-
-			base.OnCreate (bundle);
 
 			if (object.Equals(Functions.GetSetting("settings", "accountType"), "teacher"))
 				InitializeTeacher ();
 			else
 				InitializeStudent ();
-
-
-			/*var gridview = FindViewById<GridView>(Resource.Id.gridView1);
-			gridview.Adapter = new CustomAdapter(this);
-
-			gridview.ItemClick += delegate(object sender, AdapterView.ItemClickEventArgs args)
-			{
-				Toast.MakeText(this, args.Position.ToString(), ToastLength.Short).Show();
-			};*/
 		}
 
 		private void InitializeTeacher()
@@ -52,6 +46,11 @@ namespace APlus
 
 			Button btnGradeIndividual = FindViewById<Button> (Resource.Id.btnGradeIndividual);
 			btnGradeIndividual.Click += (object sender, EventArgs e) => {
+				if (Functions.IsOffline(true)) {
+					Toast.MakeText(this, "Cannot complete action while offline.", ToastLength.Long).Show ();
+					return;
+				}
+
 				StartActivityForResult(typeof(ScanCodeActivity), 1);
 			};
 		}
@@ -61,10 +60,36 @@ namespace APlus
 			SetContentView (Resource.Layout.MainStudent);
 			this.ActionBar.NavigationMode = ActionBarNavigationMode.Standard;
 			this.Title = "APlus Student Panel";
+
+			while (!_checkedStatus)
+				Thread.Sleep (100);
+
+			var data = new NameValueCollection();
+			data.Add("checkuser", string.Empty);
+
+			string rawReply = WebFunctions.Request (data);
+
+			if (!rawReply.Contains ("Registered")) {
+				StartActivity (typeof(LoginActivity));
+				Finish ();
+			}
+
+			string[] reply = Regex.Split (rawReply, "<br>");
+
+			var gridview = FindViewById<GridView>(Resource.Id.gridView1);
+			gridview.Adapter = new GradesAdapter(this, reply);
+
+			gridview.ItemClick += delegate(object sender, AdapterView.ItemClickEventArgs args)
+			{
+				Toast.MakeText(this, args.Position.ToString(), ToastLength.Short).Show();
+			};
 		}
 
 		protected override void OnActivityResult(int requestCode, Result resultCode, Intent data)
 		{
+			if (data == null)
+				return;
+
 			if (requestCode == 1) {
 				if (string.IsNullOrEmpty(data.GetStringExtra ("error")))
 					Toast.MakeText (this, data.GetStringExtra ("reply"), ToastLength.Long).Show();
@@ -80,6 +105,7 @@ namespace APlus
 			try {
 				bool loggedIn = Functions.IsLoggedIn();
 				Functions.DeleteSetting("settings", "offline");
+				_checkedStatus = true;
 
 				if (!loggedIn) {
 					StartActivity (typeof(LoginActivity));
@@ -110,9 +136,6 @@ namespace APlus
 
 			string response = WebFunctions.Request (data);
 			if (response == "Logged out successfully") {
-				Functions.DeleteSetting ("signedInCookie");
-				Functions.DeleteSetting ("settings", "loggedIn");
-				WebFunctions.ClearCookies ();
 				StartActivity (typeof(LoginActivity));
 				Finish ();
 			} else
@@ -122,4 +145,3 @@ namespace APlus
 		}
 	}
 }
-

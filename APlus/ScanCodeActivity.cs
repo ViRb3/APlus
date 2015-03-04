@@ -24,6 +24,7 @@ namespace APlus
 		private Button _btnGradeCommit;
 		private EditText _editTextSubject;
 
+		private string _qrCode;
 		private string[] _userCode;
 
 		protected override void OnCreate (Bundle bundle)
@@ -56,8 +57,23 @@ namespace APlus
 			_btnGradeCommit = FindViewById<Button>(Resource.Id.btnGradeCommit);
 			_btnGradeCommit.Click += DoCommit;
 
+			/*var data = new NameValueCollection ();
+			data.Add ("getstudents", string.Empty);
 
-			/*var data = new NameValueCollection();
+			string reply = WebFunctions.Request (data);
+			string[] students = Regex.Split (reply, System.Environment.NewLine);
+
+			if (!reply.Contains (System.Environment.NewLine) || students.Length < 1) {
+				Intent resultData = new Intent();
+				resultData.PutExtra("error", reply);
+				SetResult(Result.Ok, resultData);
+				Finish ();
+				return;
+			}*/
+
+			/*_spinnerStudent = FindViewById<Spinner> (Resource.Id.spinnerStudent);
+			_spinnerStudent.Adapter = new ArrayAdapter (this, Resource.Layout.SpinnerItem, students);
+			var data = new NameValueCollection();
 			data.Add ("getsubjects", string.Empty);
 			string reply = WebFunctions.Request (data);
 
@@ -73,19 +89,34 @@ namespace APlus
 			Intent resultData;
 
 			if (string.IsNullOrWhiteSpace (_editTextSubject.Text)) {
+				Toast.MakeText (this, "Subject cannot be empty!", ToastLength.Long).Show ();
+				return;
+			}
+
+			var data = new NameValueCollection();
+			data.Add("getstudentemail", string.Empty);
+			data.Add("firstname", _userCode[0]);
+			data.Add("lastname", _userCode[1]);
+			data.Add("class", _userCode[2]);
+
+			string reply = WebFunctions.Request (data);
+
+			if (!reply.Contains ("@")) {
 				resultData = new Intent();
-				resultData.PutExtra("error", "Subject cannot be empty!");
+				resultData.PutExtra("error", reply);
 				SetResult(Result.Ok, resultData);
 				Finish ();
 				return;
 			}
 
-			var data = new NameValueCollection();
-			data.Add("newgrade", string.Empty);
-			data.Add("subject", _editTextSubject.Text);
-			data.Add("grade", _txtViewGrade.Text);
+			data.Clear ();
+			data.Add ("newgrade", string.Empty);
+			data.Add ("subject", _editTextSubject.Text);
+			data.Add ("grade", _txtViewGrade.Text);
+			data.Add ("student", reply);
+			data.Add ("code", _qrCode);
 
-			string reply = WebFunctions.Request (data);
+			reply = WebFunctions.Request (data);
 
 			resultData = new Intent();
 			resultData.PutExtra("reply", reply);
@@ -113,6 +144,7 @@ namespace APlus
 			}
 
 			string result = data.GetStringExtra("la.droid.qr.result");
+			_qrCode = result;
 
 			if (string.IsNullOrEmpty (result))
 				ThrowError ();

@@ -82,6 +82,7 @@
     <AndroidResource Include="Resources\layout\MainTeacher.axml" />
     <AndroidResource Include="Resources\layout\MainStudent.axml" />
     <AndroidResource Include="Resources\layout\ScanCode.axml" />
+    <AndroidResource Include="Resources\layout\SpinnerItem.axml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />
   <ItemGroup />

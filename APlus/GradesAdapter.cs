@@ -1,21 +1,24 @@
 using Android.Content;
 using Android.Views;
 using Android.Widget;
+using System;
 
 namespace APlus
 {
-    public class CustomAdapter : BaseAdapter
+    public class GradesAdapter : BaseAdapter
     {
         readonly Context _context;
+		private string[] _subjectGrades;
 
-        public CustomAdapter(Context context)
+		public GradesAdapter(Context context, string[] subjectGrades)
         {
             _context = context;
+			_subjectGrades = subjectGrades;
         }
 
         public override int Count
         {
-            get { return 2; }
+			get { return _subjectGrades.Length; }
         }
 
         public override Java.Lang.Object GetItem(int position)
@@ -34,9 +37,9 @@ namespace APlus
 
             if (convertView == null) {  // if it's not recycled, initialize some attributes
                 textView = new TextView(_context);
-                textView.LayoutParameters = new GridView.LayoutParams(85, 85);
-                textView.SetPadding(8, 8, 8, 8);
-                textView.Text = "Test";
+				textView.LayoutParameters = new GridView.LayoutParams(ViewGroup.LayoutParams.MatchParent, 85);
+                //textView.SetPadding(8, 8, 8, 8);
+				textView.Text = _subjectGrades [position];
             }
             else textView = (TextView)convertView;
 
