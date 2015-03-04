@@ -64,6 +64,11 @@ namespace APlus
 			while (!_checkedStatus)
 				Thread.Sleep (100);
 
+			if (Functions.IsOffline(true)) {
+				Toast.MakeText(this, "Cannot complete action while offline.", ToastLength.Long).Show ();
+				return;
+			}
+
 			var data = new NameValueCollection();
 			data.Add("checkuser", string.Empty);
 
@@ -105,7 +110,6 @@ namespace APlus
 			try {
 				bool loggedIn = Functions.IsLoggedIn();
 				Functions.DeleteSetting("settings", "offline");
-				_checkedStatus = true;
 
 				if (!loggedIn) {
 					StartActivity (typeof(LoginActivity));
@@ -114,6 +118,9 @@ namespace APlus
 			}
 			catch (Exception) {
 				Functions.SaveSetting ("settings", "offline", "true");
+			}
+			finally {
+				_checkedStatus = true;
 			}
 		}
 

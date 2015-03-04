@@ -56,32 +56,6 @@ namespace APlus
 
 			_btnGradeCommit = FindViewById<Button>(Resource.Id.btnGradeCommit);
 			_btnGradeCommit.Click += DoCommit;
-
-			/*var data = new NameValueCollection ();
-			data.Add ("getstudents", string.Empty);
-
-			string reply = WebFunctions.Request (data);
-			string[] students = Regex.Split (reply, System.Environment.NewLine);
-
-			if (!reply.Contains (System.Environment.NewLine) || students.Length < 1) {
-				Intent resultData = new Intent();
-				resultData.PutExtra("error", reply);
-				SetResult(Result.Ok, resultData);
-				Finish ();
-				return;
-			}*/
-
-			/*_spinnerStudent = FindViewById<Spinner> (Resource.Id.spinnerStudent);
-			_spinnerStudent.Adapter = new ArrayAdapter (this, Resource.Layout.SpinnerItem, students);
-			var data = new NameValueCollection();
-			data.Add ("getsubjects", string.Empty);
-			string reply = WebFunctions.Request (data);
-
-			if (string.IsNullOrWhiteSpace (reply)) {
-				Toast.MakeText (Application.Context, "Cannot retrieve subjects!", ToastLength.Long);
-				Finish ();
-				return;
-			}*/
 		}
 
 		void DoCommit (object sender, EventArgs e)
@@ -146,18 +120,30 @@ namespace APlus
 			string result = data.GetStringExtra("la.droid.qr.result");
 			_qrCode = result;
 
-			if (string.IsNullOrEmpty (result))
+			if (string.IsNullOrEmpty (result)) {
 				ThrowError ();
+				return;
+			}
 
-			string rawUserCode = Decrypt(result);
+			try {
+				string rawUserCode = Decrypt(result);
 
-			if (string.IsNullOrEmpty (rawUserCode))
+				if (string.IsNullOrEmpty (rawUserCode)) {
+					ThrowError ();
+					return;
+				}
+
+				_userCode = Regex.Split (rawUserCode, ":");
+
+				if (_userCode.Length != 3 || _userCode.Any(code => string.IsNullOrWhiteSpace(code))) {
+					ThrowError ();
+					return;
+				}
+			}
+			catch (Exception) {
 				ThrowError ();
-
-			_userCode = Regex.Split (rawUserCode, ":");
-
-			if (_userCode.Length != 3 || _userCode.Any(code => string.IsNullOrWhiteSpace(code)))
-				ThrowError ();
+				return;
+			}
 		}
 
 		private void ThrowError()

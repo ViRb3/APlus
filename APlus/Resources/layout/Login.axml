@@ -12,7 +12,9 @@
         android:id="@+id/txtEmail"
         android:layout_alignParentTop="true"
         android:hint="E-mail"
-        android:layout_marginTop="33dp" />
+        android:layout_marginTop="33dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp" />
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -21,7 +23,9 @@
         android:id="@+id/txtPassword"
         android:layout_below="@+id/txtEmail"
         android:hint="Password"
-        android:layout_marginTop="30dp" />
+        android:layout_marginTop="30dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp" />
     <Button
         android:layout_width="100dp"
         android:layout_height="wrap_content"

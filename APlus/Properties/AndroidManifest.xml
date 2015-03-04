@@ -2,4 +2,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="1" android:versionName="1.0" package="com.virb3.aplus" android:installLocation="auto">
 	<uses-sdk android:minSdkVersion="15" />
 	<application android:label="APlus" android:icon="@drawable/Icon"></application>
+	<uses-permission android:name="android.permission.INTERNET" />
 </manifest>

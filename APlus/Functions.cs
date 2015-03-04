@@ -5,6 +5,7 @@ using System.Text;
 using Android.App;
 using Android.Content;
 using System.Collections.Specialized;
+using Android.Widget;
 
 namespace APlus
 {
@@ -21,6 +22,7 @@ namespace APlus
 					Functions.SaveSetting ("settings", "offline", "true");
 				}
 			}
+
 			return object.Equals (Functions.GetSetting ("settings", "offline"), "true");
 		}
 
