@@ -15,7 +15,8 @@
         p1:textAllCaps="true"
         p1:textSize="20dp"
         p1:textColor="#ffffff"
-        p1:background="@drawable/myButton" />
+        p1:background="@drawable/myButton"
+        p1:visibility="gone" />
     <Button
         p1:text="Grade individual"
         p1:layout_width="match_parent"

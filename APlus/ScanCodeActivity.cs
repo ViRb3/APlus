@@ -26,9 +26,26 @@ namespace APlus
 			base.OnCreate (bundle);
 			SetContentView (Resource.Layout.ScanCode);
 
+			if (!IsPackageInstalled ("la.droid.qr", this)) {
+				AlertDialog.Builder builder = new AlertDialog.Builder(this);
+				builder.SetTitle("Error");
+				builder.SetMessage("The external application \"QR Droid\" is required but not installed.\r\nWould you like to do that now?");
+				builder.SetCancelable(false);
+				builder.SetPositiveButton("Yes", delegate { GetQRDroid(); });
+				builder.SetNegativeButton ("No", delegate { Finish(); });
+				builder.Show();
+
+				return;
+			}
+
 			Intent qrDroid = new Intent("la.droid.qr.scan");
 			qrDroid.PutExtra("la.droid.qr.complete" , true);
 			StartActivityForResult(qrDroid, 0);
+
+			if (string.IsNullOrEmpty (_userCode)) {
+				Finish ();
+				return;
+			}
 
             _txtViewGrade = FindViewById<TextView>(Resource.Id.txtViewGrade);
             _seekBarGrade = FindViewById<SeekBar>(Resource.Id.seekBarGrade);
@@ -36,7 +53,12 @@ namespace APlus
             _seekBarGrade.ProgressChanged += seekBar_ProgressChanged;
 		}
 
-        void seekBar_ProgressChanged(object sender, SeekBar.ProgressChangedEventArgs e)
+		private void GetQRDroid()
+		{
+			StartActivity(new Intent(Intent.ActionView, Android.Net.Uri.Parse("market://details?id=la.droid.qr")));
+		}
+
+        private void seekBar_ProgressChanged(object sender, SeekBar.ProgressChangedEventArgs e)
         {
             _txtViewGrade.Text = (e.Progress + 2).ToString();
         }
@@ -53,7 +75,8 @@ namespace APlus
 			if (string.IsNullOrEmpty (result))
 				return;
 
-			Toast.MakeText (this, Decrypt (result), ToastLength.Long).Show ();
+			_userCode = Decrypt(result);
+			Toast.MakeText (this, _userCode, ToastLength.Long).Show ();
 		}
 
 		private string Decrypt(string encryptedCode)
