@@ -51,7 +51,6 @@
     <Reference Include="System.Net.Http" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CustomAdapter.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Functions.cs" />
@@ -61,6 +60,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="ScanCodeActivity.cs" />
+    <Compile Include="GradesAdapter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />

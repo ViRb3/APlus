@@ -1,16 +1,18 @@
 ﻿
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 using Android.App;
 using Android.Content;
 using Android.OS;
-using Android.Runtime;
-using Android.Views;
 using Android.Widget;
 using Android.Content.PM;
+using System.IO;
+using System.Security.Cryptography;
+using System.Text.RegularExpressions;
+using System.Linq;
+using System.Collections.Specialized;
+using System.Threading;
 
 namespace APlus
 {
@@ -19,7 +21,10 @@ namespace APlus
 	{
 	    private SeekBar _seekBarGrade;
         private TextView _txtViewGrade;
-		private string _userCode;
+		private Button _btnGradeCommit;
+		private EditText _editTextSubject;
+
+		private string[] _userCode;
 
 		protected override void OnCreate (Bundle bundle)
 		{
@@ -42,15 +47,50 @@ namespace APlus
 			qrDroid.PutExtra("la.droid.qr.complete" , true);
 			StartActivityForResult(qrDroid, 0);
 
-			if (string.IsNullOrEmpty (_userCode)) {
+            _txtViewGrade = FindViewById<TextView> (Resource.Id.txtViewGrade);
+			_editTextSubject = FindViewById<EditText> (Resource.Id.editTextSubject);
+
+			_seekBarGrade = FindViewById<SeekBar> (Resource.Id.seekBarGrade);
+            _seekBarGrade.ProgressChanged += seekBar_ProgressChanged;
+
+			_btnGradeCommit = FindViewById<Button>(Resource.Id.btnGradeCommit);
+			_btnGradeCommit.Click += DoCommit;
+
+
+			/*var data = new NameValueCollection();
+			data.Add ("getsubjects", string.Empty);
+			string reply = WebFunctions.Request (data);
+
+			if (string.IsNullOrWhiteSpace (reply)) {
+				Toast.MakeText (Application.Context, "Cannot retrieve subjects!", ToastLength.Long);
+				Finish ();
+				return;
+			}*/
+		}
+
+		void DoCommit (object sender, EventArgs e)
+		{
+			Intent resultData;
+
+			if (string.IsNullOrWhiteSpace (_editTextSubject.Text)) {
+				resultData = new Intent();
+				resultData.PutExtra("error", "Subject cannot be empty!");
+				SetResult(Result.Ok, resultData);
 				Finish ();
 				return;
 			}
 
-            _txtViewGrade = FindViewById<TextView>(Resource.Id.txtViewGrade);
-            _seekBarGrade = FindViewById<SeekBar>(Resource.Id.seekBarGrade);
+			var data = new NameValueCollection();
+			data.Add("newgrade", string.Empty);
+			data.Add("subject", _editTextSubject.Text);
+			data.Add("grade", _txtViewGrade.Text);
 
-            _seekBarGrade.ProgressChanged += seekBar_ProgressChanged;
+			string reply = WebFunctions.Request (data);
+
+			resultData = new Intent();
+			resultData.PutExtra("reply", reply);
+			SetResult(Result.Ok, resultData);
+			Finish ();
 		}
 
 		private void GetQRDroid()
@@ -67,38 +107,69 @@ namespace APlus
 		{
 			base.OnActivityResult(requestCode, resultCode, data);
 
-			if (data == null)
+			if (data == null) {
+				Finish ();
 				return;
+			}
 
 			string result = data.GetStringExtra("la.droid.qr.result");
 
 			if (string.IsNullOrEmpty (result))
-				return;
+				ThrowError ();
 
-			_userCode = Decrypt(result);
-			Toast.MakeText (this, _userCode, ToastLength.Long).Show ();
+			string rawUserCode = Decrypt(result);
+
+			if (string.IsNullOrEmpty (rawUserCode))
+				ThrowError ();
+
+			_userCode = Regex.Split (rawUserCode, ":");
+
+			if (_userCode.Length != 3 || _userCode.Any(code => string.IsNullOrWhiteSpace(code)))
+				ThrowError ();
 		}
 
-		private string Decrypt(string encryptedCode)
+		private void ThrowError()
 		{
-			byte[] codeBytes = Convert.FromBase64String (encryptedCode);
-
-			for (int i = 0; i < codeBytes.Length; i++)
-			{
-				codeBytes[i] = (byte) (codeBytes[i] ^ GetCode());
-			}
-
-			return Encoding.UTF8.GetString(codeBytes);
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.SetTitle("Error");
+			builder.SetMessage("Invalid QR code scanned!");
+			builder.SetCancelable(false);
+			builder.SetNeutralButton ("OK", delegate { Finish(); });
+			builder.Show();
 		}
 
-		private int GetCode()
+		private string Decrypt(string data)
+		{
+			byte[] dataBytes = Convert.FromBase64String(data);
+
+			using (MemoryStream memoryStream = new MemoryStream())
+			{
+				memoryStream.Write(dataBytes, 0, dataBytes.Length);
+
+				using (AesManaged aes = new AesManaged())
+				{
+					aes.Key = GetCode();
+
+					byte[] iv = new byte[16];
+					memoryStream.Position = 0;
+					memoryStream.Read(iv, 0, 16);
+					aes.IV = iv;
+
+					using (var cryptoStream = new CryptoStream(memoryStream, aes.CreateDecryptor(), CryptoStreamMode.Read)) 
+					using (StreamReader streamReader = new StreamReader(cryptoStream))
+						return streamReader.ReadToEnd();        
+				}
+			}
+		}
+
+		private byte[] GetCode()
 		{
 			int code = 0;
 
 			foreach (char @char in "APlus")
 				code += @char;
 
-			return code;
+			return MD5.Create().ComputeHash(Encoding.UTF8.GetBytes(code.ToString()));
 		}
 
 		private bool IsPackageInstalled(String packageName, Context context) 
@@ -108,7 +179,7 @@ namespace APlus
 			try {
 				pm.GetPackageInfo(packageName, PackageInfoFlags.Activities);
 				return true;
-			} catch (PackageManager.NameNotFoundException e) {
+			} catch (PackageManager.NameNotFoundException) {
 				return false;
 			}
 		}

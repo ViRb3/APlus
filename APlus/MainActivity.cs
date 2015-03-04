@@ -52,7 +52,7 @@ namespace APlus
 
 			Button btnGradeIndividual = FindViewById<Button> (Resource.Id.btnGradeIndividual);
 			btnGradeIndividual.Click += (object sender, EventArgs e) => {
-				StartActivity(typeof(ScanCodeActivity));
+				StartActivityForResult(typeof(ScanCodeActivity), 1);
 			};
 		}
 
@@ -61,6 +61,16 @@ namespace APlus
 			SetContentView (Resource.Layout.MainStudent);
 			this.ActionBar.NavigationMode = ActionBarNavigationMode.Standard;
 			this.Title = "APlus Student Panel";
+		}
+
+		protected override void OnActivityResult(int requestCode, Result resultCode, Intent data)
+		{
+			if (requestCode == 1) {
+				if (string.IsNullOrEmpty(data.GetStringExtra ("error")))
+					Toast.MakeText (this, data.GetStringExtra ("reply"), ToastLength.Long).Show();
+				else
+					Toast.MakeText (this, data.GetStringExtra ("error"), ToastLength.Long).Show();
+			}
 		}
 
 		private void CheckLogin()
