@@ -19,9 +19,12 @@ namespace APlus
 	public class MainActivity : Activity
 	{
 		private bool _checkedStatus;
+		private string _pendingMessage;
+
 		protected override void OnCreate (Bundle bundle)
 		{
 			base.OnCreate (bundle);
+			Functions.CurrentContext = this;
 
 			string loggedIn = Functions.GetSetting ("settings", "loggedIn");
 
@@ -30,12 +33,23 @@ namespace APlus
 				Finish ();
 				return;
 			} 
-			else new Thread (CheckLogin).Start ();
+			ThreadPool.QueueUserWorkItem (o => CheckLogin ());
 
 			if (object.Equals(Functions.GetSetting("settings", "accountType"), "teacher"))
 				InitializeTeacher ();
 			else
 				InitializeStudent ();
+		}
+
+		protected override void OnResume ()
+		{
+			base.OnResume ();
+			Functions.CurrentContext = this;
+
+			if (!string.IsNullOrWhiteSpace (_pendingMessage)) {
+				ResponseManager.ShowMessage ("Result", _pendingMessage);
+				_pendingMessage = null;
+			}
 		}
 
 		private void InitializeTeacher()
@@ -45,9 +59,10 @@ namespace APlus
 			this.Title = "APlus Teacher Panel";
 
 			Button btnGradeIndividual = FindViewById<Button> (Resource.Id.btnGradeIndividual);
+
 			btnGradeIndividual.Click += (object sender, EventArgs e) => {
-				if (Functions.IsOffline(true)) {
-					Toast.MakeText(this, "Cannot complete action while offline.", ToastLength.Long).Show ();
+				if (Functions.IsOffline()) {
+					ResponseManager.ShowMessage("Error", "Cannot complete action while offline.");
 					return;
 				}
 
@@ -61,14 +76,23 @@ namespace APlus
 			this.ActionBar.NavigationMode = ActionBarNavigationMode.Standard;
 			this.Title = "APlus Student Panel";
 
-			while (!_checkedStatus)
-				Thread.Sleep (100);
-
-			if (Functions.IsOffline(true)) {
-				Toast.MakeText(this, "Cannot complete action while offline.", ToastLength.Long).Show ();
+			if (Functions.IsOffline()) {
+				ResponseManager.ShowMessage("Error", "Cannot complete action while offline.");
 				return;
 			}
 
+			ResponseManager.ShowLoading ("Fetching user data...");
+
+			ThreadPool.QueueUserWorkItem (o => {
+				while (!_checkedStatus)
+					Thread.Sleep(100);
+
+				FetchStudentData();
+			});
+		}
+
+		private void FetchStudentData()
+		{
 			var data = new NameValueCollection();
 			data.Add("checkuser", string.Empty);
 
@@ -82,12 +106,9 @@ namespace APlus
 			string[] reply = Regex.Split (rawReply, "<br>");
 
 			var gridview = FindViewById<GridView>(Resource.Id.gridView1);
-			gridview.Adapter = new GradesAdapter(this, reply);
+			RunOnUiThread(() => gridview.Adapter = new GradesAdapter(this, reply));
 
-			gridview.ItemClick += delegate(object sender, AdapterView.ItemClickEventArgs args)
-			{
-				Toast.MakeText(this, args.Position.ToString(), ToastLength.Short).Show();
-			};
+			ResponseManager.DismissLoading ();
 		}
 
 		protected override void OnActivityResult(int requestCode, Result resultCode, Intent data)
@@ -96,28 +117,24 @@ namespace APlus
 				return;
 
 			if (requestCode == 1) {
-				if (string.IsNullOrEmpty(data.GetStringExtra ("error")))
-					Toast.MakeText (this, data.GetStringExtra ("reply"), ToastLength.Long).Show();
+				if (data.GetStringExtra ("error") == null) {
+					string[] array = data.GetStringArrayExtra ("reply");
+					_pendingMessage = array[0] + System.Environment.NewLine + array[1];
+				}
 				else
-					Toast.MakeText (this, data.GetStringExtra ("error"), ToastLength.Long).Show();
+					_pendingMessage = data.GetStringExtra("error");
 			}
 		}
 
 		private void CheckLogin()
 		{
-			Looper.Prepare();
-
 			try {
 				bool loggedIn = Functions.IsLoggedIn();
-				Functions.DeleteSetting("settings", "offline");
 
 				if (!loggedIn) {
 					StartActivity (typeof(LoginActivity));
 					Finish ();
 				}
-			}
-			catch (Exception) {
-				Functions.SaveSetting ("settings", "offline", "true");
 			}
 			finally {
 				_checkedStatus = true;
@@ -133,22 +150,30 @@ namespace APlus
 			
 		public override bool OnOptionsItemSelected(IMenuItem item) 
 		{
-			if (Functions.IsOffline(true)) {
-				Toast.MakeText (Application.Context, "No internet connection!", ToastLength.Short).Show ();
+			if (Functions.IsOffline()) {
+				ResponseManager.ShowMessage("Error", "Cannot complete action while offline.");
 				return base.OnOptionsItemSelected (item);
 			}
 
+			ResponseManager.ShowLoading ("Logging out...");
+			ThreadPool.QueueUserWorkItem (o => DoLogout ());
+
+			return base.OnOptionsItemSelected (item);
+		}
+
+		private static void DoLogout()
+		{
 			var data = new NameValueCollection();
 			data.Add("logout", string.Empty);
 
 			string response = WebFunctions.Request (data);
 			if (response == "Logged out successfully") {
-				StartActivity (typeof(LoginActivity));
-				Finish ();
-			} else
-				Toast.MakeText (Application.Context, response, ToastLength.Long).Show ();
-
-			return base.OnOptionsItemSelected (item);
+				Functions.CurrentContext.StartActivity (typeof(LoginActivity));
+				Functions.CurrentContext.Finish ();
+			} else {
+				ResponseManager.ShowMessage ("Error", response);
+				ResponseManager.DismissLoading ();
+			}
 		}
 	}
 }

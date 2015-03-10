@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Text;
 
 using Android.App;
@@ -27,10 +26,16 @@ namespace APlus
 		private string _qrCode;
 		private string[] _userCode;
 
+		private bool _scannedCode;
+
 		protected override void OnCreate (Bundle bundle)
 		{
 			base.OnCreate (bundle);
+			Functions.CurrentContext = this;
 			SetContentView (Resource.Layout.ScanCode);
+
+			if (bundle != null)
+				_scannedCode = bundle.GetBoolean ("scannedCode");
 
 			if (!IsPackageInstalled ("la.droid.qr", this)) {
 				AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -38,15 +43,17 @@ namespace APlus
 				builder.SetMessage("The external application \"QR Droid\" is required but not installed.\r\nWould you like to do that now?");
 				builder.SetCancelable(false);
 				builder.SetPositiveButton("Yes", delegate { GetQRDroid(); });
-				builder.SetNegativeButton ("No", delegate { Finish(); });
+				builder.SetNegativeButton("No", delegate { Finish(); });
 				builder.Show();
 
 				return;
 			}
 
-			Intent qrDroid = new Intent("la.droid.qr.scan");
-			qrDroid.PutExtra("la.droid.qr.complete" , true);
-			StartActivityForResult(qrDroid, 0);
+			if (!_scannedCode) {
+				Intent qrDroid = new Intent("la.droid.qr.scan");
+				qrDroid.PutExtra("la.droid.qr.complete" , true);
+				StartActivityForResult(qrDroid, 0);
+			}
 
             _txtViewGrade = FindViewById<TextView> (Resource.Id.txtViewGrade);
 			_editTextSubject = FindViewById<EditText> (Resource.Id.editTextSubject);
@@ -54,18 +61,51 @@ namespace APlus
 			_seekBarGrade = FindViewById<SeekBar> (Resource.Id.seekBarGrade);
             _seekBarGrade.ProgressChanged += seekBar_ProgressChanged;
 
+			if (bundle != null) {
+				_seekBarGrade.Progress = bundle.GetInt ("grade") - 2;
+				_editTextSubject.Text = bundle.GetString ("subject");
+				_userCode = bundle.GetStringArray ("userCode");
+				_qrCode = bundle.GetString ("qrCode");
+			}
+
 			_btnGradeCommit = FindViewById<Button>(Resource.Id.btnGradeCommit);
-			_btnGradeCommit.Click += DoCommit;
+			_btnGradeCommit.Click += Commit;
 		}
 
-		void DoCommit (object sender, EventArgs e)
+		protected override void OnResume ()
 		{
-			Intent resultData;
+			base.OnResume ();
+			Functions.CurrentContext = this;
+		}
 
+		protected override void OnSaveInstanceState(Bundle bundle) 
+		{
+			bundle.PutBoolean("scannedCode", _scannedCode);
+			bundle.PutInt("grade", int.Parse(_txtViewGrade.Text));
+			bundle.PutString("subject", _editTextSubject.Text);
+			bundle.PutStringArray("userCode", _userCode);
+			bundle.PutString("qrCode", _qrCode);
+		}
+
+		private void Commit (object sender, EventArgs e)
+		{
 			if (string.IsNullOrWhiteSpace (_editTextSubject.Text)) {
-				Toast.MakeText (this, "Subject cannot be empty!", ToastLength.Long).Show ();
+				ResponseManager.ShowMessage ("Error", "Subject cannot be empty!");
 				return;
 			}
+
+			if (Functions.IsOffline()) {
+				ResponseManager.ShowMessage ("Error", "Cannot complete action while offline.");
+				return;
+			}
+
+			ResponseManager.ShowLoading ("Saving grade...");
+			ThreadPool.QueueUserWorkItem (o => DoCommit ());
+		}
+
+		private void DoCommit()
+		{
+			Intent resultData;
 
 			var data = new NameValueCollection();
 			data.Add("getstudentemail", string.Empty);
@@ -90,17 +130,20 @@ namespace APlus
 			data.Add ("student", reply);
 			data.Add ("code", _qrCode);
 
-			reply = WebFunctions.Request (data);
+			string reply2 = WebFunctions.Request (data);
 
 			resultData = new Intent();
-			resultData.PutExtra("reply", reply);
+			resultData.PutExtra("reply", new[] {reply2, string.Format("{0} {1} {2}", _userCode[0], _userCode[1], _userCode[2])});
 			SetResult(Result.Ok, resultData);
 			Finish ();
 		}
 
 		private void GetQRDroid()
 		{
-			StartActivity(new Intent(Intent.ActionView, Android.Net.Uri.Parse("market://details?id=la.droid.qr")));
+			Intent playStore = new Intent (Intent.ActionView, Android.Net.Uri.Parse ("market://details?id=la.droid.qr"));
+			playStore.AddFlags(ActivityFlags.NewTask);
+			StartActivity(playStore);
+			Finish ();
 		}
 
         private void seekBar_ProgressChanged(object sender, SeekBar.ProgressChangedEventArgs e)
@@ -144,6 +187,8 @@ namespace APlus
 				ThrowError ();
 				return;
 			}
+
+			_scannedCode = true;
 		}
 
 		private void ThrowError()

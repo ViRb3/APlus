@@ -5,6 +5,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using Android.App;
 using Android.Widget;
+using Android.Content;
 
 namespace APlus
 {
@@ -13,6 +14,7 @@ namespace APlus
 		private static readonly string _server = "http://microcast.mcserver.ws/aplus/service.php";
 		private static BetterWebClient _webClient = new BetterWebClient();
 		private static Cookie _signedInCookie;
+		public static Context Activity;
 
 		static WebFunctions()
 		{
@@ -58,7 +60,7 @@ namespace APlus
 				_signedInCookie = _webClient.CookieJar.GetCookies(new Uri(_server)).Cast<Cookie>().FirstOrDefault(c => c.Name == "signedUser");
 
 			if (_signedInCookie == null)
-				Toast.MakeText(Application.Context, "Unable to load keep signed in cookie", ToastLength.Short);
+				Functions.CurrentContext.RunOnUiThread (() => Toast.MakeText (Application.Context, "Unable to load keep signed in cookie", ToastLength.Short));
 			else
 			{
 				List<Tuple<string, string>> settings = new List<Tuple<string, string>>();

@@ -61,6 +61,7 @@
     </Compile>
     <Compile Include="ScanCodeActivity.cs" />
     <Compile Include="GradesAdapter.cs" />
+    <Compile Include="ResponseManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />

@@ -6,24 +6,24 @@ using Android.App;
 using Android.Content;
 using System.Collections.Specialized;
 using Android.Widget;
+using System.Diagnostics;
+using Android.Net;
 
 namespace APlus
 {
 	public static class Functions
 	{
-		public static bool IsOffline(bool update)
-		{
-			if (update) {
-				try {
-					bool loggedIn = Functions.IsLoggedIn();
-					Functions.DeleteSetting ("settings", "offline");
-				}
-				catch (Exception) {
-					Functions.SaveSetting ("settings", "offline", "true");
-				}
-			}
+		public static Activity CurrentContext;
 
-			return object.Equals (Functions.GetSetting ("settings", "offline"), "true");
+		public static bool IsOffline() 
+		{
+			var connectivityManager = (ConnectivityManager)CurrentContext.GetSystemService(Context.ConnectivityService);
+			NetworkInfo networkInfo = connectivityManager.ActiveNetworkInfo;
+
+			if (networkInfo == null || !networkInfo.IsConnected)
+				return true;
+			else
+				return false;
 		}
 
 		public static bool IsLoggedIn()

@@ -8,6 +8,8 @@ using Android.Widget;
 using Android.OS;
 using System.Net;
 using System.Collections.Specialized;
+using System.Threading;
+using Java.Util.Concurrent;
 
 namespace APlus
 {
@@ -19,11 +21,13 @@ namespace APlus
 
 		protected override void OnCreate (Bundle bundle)
 		{
+			base.OnCreate (bundle);
+			Functions.CurrentContext = this;
+
 			Functions.DeleteSetting ("signedInCookie");
 			Functions.DeleteSetting ("settings", "loggedIn");
 			WebFunctions.ClearCookies();
 
-			base.OnCreate (bundle);
 			SetContentView (Resource.Layout.Login);
 
 			_btnLogin = FindViewById<Button> (Resource.Id.btnLogin);
@@ -33,12 +37,25 @@ namespace APlus
 			_btnLogin.Click += btnLogin_OnClick;
 		}
 
+		protected override void OnResume ()
+		{
+			base.OnResume ();
+			Functions.CurrentContext = this;
+		}
+
 		void btnLogin_OnClick(object sender, EventArgs e)
 		{
-			if (Functions.IsOffline(true)) {
-				Toast.MakeText (Application.Context, "No internet connection!", ToastLength.Short).Show ();
+			ThreadPool.QueueUserWorkItem (o => Do_btnLogin_OnClick (sender, e));
+		}
+
+		void Do_btnLogin_OnClick(object sender, EventArgs e)
+		{
+			if (Functions.IsOffline()) {
+				RunOnUiThread(() => ResponseManager.ShowMessage("Error", "No internet connection!"));
 				return;
 			}
+
+			ResponseManager.ShowLoading ("Logging in..."); 
 
 			var data = new NameValueCollection();
 			data.Add("login", string.Empty);
@@ -48,17 +65,19 @@ namespace APlus
 			string reply = WebFunctions.Request(data);
 
 			if (reply != "Login success!") {
-				Toast.MakeText (this, reply, ToastLength.Short).Show();
+				ResponseManager.DismissLoading (); 
+				RunOnUiThread(() => ResponseManager.ShowMessage("Error", reply));
 				return;
 			}	
-				
+
 			data.Clear ();
 			data.Add("getaccounttype", string.Empty);
 
 			reply = WebFunctions.Request(data);
 
 			if (reply != "student" && reply != "teacher") {
-				Toast.MakeText (this, "Unrecognized account type!", ToastLength.Short).Show();
+				ResponseManager.DismissLoading (); 
+				RunOnUiThread(() => ResponseManager.ShowMessage("Error", "Unrecognized account type!"));
 				return;
 			}		
 
