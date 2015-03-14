@@ -33,11 +33,15 @@ namespace APlus
 				Finish ();
 				return;
 			} 
-			ThreadPool.QueueUserWorkItem (o => CheckLogin ());
 
-			if (object.Equals(Functions.GetSetting("settings", "accountType"), "teacher"))
+			if (!Functions.IsOffline())
+				ThreadPool.QueueUserWorkItem (o => CheckLogin ());
+
+			var accountType = Functions.GetSetting ("settings", "accountType");
+
+			if (object.Equals(accountType, "teacher"))
 				InitializeTeacher ();
-			else
+			else if (object.Equals(accountType, "student"))
 				InitializeStudent ();
 		}
 
@@ -144,19 +148,35 @@ namespace APlus
 		public override bool OnCreateOptionsMenu (IMenu menu)
 		{
 			var inflater = MenuInflater;
-			inflater.Inflate(Resource.Menu.optionsMenu, menu);        
+			inflater.Inflate(Resource.Menu.optionsMenu, menu);  
+
+			if (!object.Equals(Functions.GetSetting("settings", "accountType"), "student"))
+				menu.FindItem (Resource.Id.action_refresh).SetVisible(false);
+
 			return true;
 		}
 			
 		public override bool OnOptionsItemSelected(IMenuItem item) 
 		{
-			if (Functions.IsOffline()) {
-				ResponseManager.ShowMessage("Error", "Cannot complete action while offline.");
-				return base.OnOptionsItemSelected (item);
+			if (item.ItemId == Resource.Id.action_settings) {
+				if (Functions.IsOffline()) {
+					ResponseManager.ShowMessage("Error", "Cannot complete action while offline.");
+					return base.OnOptionsItemSelected (item);
+				}
+
+				ResponseManager.ShowLoading ("Logging out...");
+				ThreadPool.QueueUserWorkItem (o => DoLogout ());
 			}
 
-			ResponseManager.ShowLoading ("Logging out...");
-			ThreadPool.QueueUserWorkItem (o => DoLogout ());
+			else if (item.ItemId == Resource.Id.action_refresh) {
+				if (Functions.IsOffline()) {
+					ResponseManager.ShowMessage("Error", "Cannot complete action while offline.");
+					return base.OnOptionsItemSelected (item);
+				}
+
+				ResponseManager.ShowLoading ("Fetching user data...");
+				ThreadPool.QueueUserWorkItem (o => FetchStudentData ());
+			}
 
 			return base.OnOptionsItemSelected (item);
 		}
@@ -167,7 +187,7 @@ namespace APlus
 			data.Add("logout", string.Empty);
 
 			string response = WebFunctions.Request (data);
-			if (response == "Logged out successfully") {
+			if (response == "Logged out successfully" || response == "Not logged in!") {
 				Functions.CurrentContext.StartActivity (typeof(LoginActivity));
 				Functions.CurrentContext.Finish ();
 			} else {
