@@ -8,6 +8,7 @@ using System.Collections.Specialized;
 using Android.Widget;
 using System.Diagnostics;
 using Android.Net;
+using System.Collections.Generic;
 
 namespace APlus
 {
@@ -100,5 +101,15 @@ namespace APlus
 
             return setting;
         }
+
+		public static string[] TrimArray(this string[] array)
+		{
+			List<string> listArray = new List<string> (array);
+
+			while(string.IsNullOrWhiteSpace(listArray[listArray.Count - 1]))
+				listArray.RemoveAt(listArray.Count - 1);
+
+			return listArray.ToArray();
+		}
 	} 
 }

@@ -107,10 +107,17 @@ namespace APlus
 				Finish ();
 			}
 
-			string[] reply = Regex.Split (rawReply, "<br>");
+			string[] reply = Regex.Split (rawReply, "<br>").TrimArray();
 
-			var gridview = FindViewById<GridView>(Resource.Id.gridView1);
-			RunOnUiThread(() => gridview.Adapter = new GradesAdapter(this, reply));
+			Regex userMatch = new Regex (":.*");
+			string user = (from a in reply
+				where !string.IsNullOrWhiteSpace(userMatch.Match(a).Value)
+				select userMatch.Match(a).Value.Remove(0, 2)).First();
+
+			var listView = FindViewById<ListView>(Resource.Id.listView1);
+
+			var adapter = new ArrayAdapter<String>(this, Android.Resource.Layout.SimpleListItem1, reply);
+			RunOnUiThread(() => listView.Adapter = adapter);
 
 			ResponseManager.DismissLoading ();
 		}

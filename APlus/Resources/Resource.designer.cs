@@ -88,7 +88,7 @@ namespace APlus
 			public const int editTextSubject = 2131099660;
 			
 			// aapt resource value: 0x7f060004
-			public const int gridView1 = 2131099652;
+			public const int listView1 = 2131099652;
 			
 			// aapt resource value: 0x7f060003
 			public const int relativeLayout1 = 2131099651;
