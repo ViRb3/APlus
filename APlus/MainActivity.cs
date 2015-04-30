@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Collections.Specialized;
 using Android.App;
 using Android.Content;
 using Android.OS;
-using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using System.Threading;
-using System.Net;
 using System.Text.RegularExpressions;
 
 namespace APlus
@@ -128,10 +124,8 @@ namespace APlus
 				return;
 
 			if (requestCode == 1) {
-				if (data.GetStringExtra ("error") == null) {
-					string[] array = data.GetStringArrayExtra ("reply");
-					_pendingMessage = array[0] + System.Environment.NewLine + array[1];
-				}
+				if (data.GetStringExtra ("error") == null)
+					_pendingMessage = data.GetStringExtra ("reply");
 				else
 					_pendingMessage = data.GetStringExtra("error");
 			}

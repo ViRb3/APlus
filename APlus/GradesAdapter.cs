@@ -1,7 +1,6 @@
 using Android.Content;
 using Android.Views;
 using Android.Widget;
-using System;
 
 namespace APlus
 {

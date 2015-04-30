@@ -1,9 +1,15 @@
 ﻿<Properties StartupItem="APlus\APlus.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Android.04c873cc97114bb1" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="APlus\MainActivity.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="APlus\ScanCodeActivity.cs">
     <Files>
-      <File FileName="APlus\MainActivity.cs" Line="107" Column="15" />
-      <File FileName="APlus\Functions.cs" Line="108" Column="4" />
+      <File FileName="APlus\MainActivity.cs" Line="1" Column="14" />
+      <File FileName="APlus\ScanCodeActivity.cs" Line="44" Column="21" />
+      <File FileName="APlus\LoginActivity.cs" Line="1" Column="14" />
+      <File FileName="APlus\Functions.cs" Line="28" Column="4" />
+      <File FileName="APlus\Properties\AndroidManifest.xml" Line="4" Column="18" />
+      <File FileName="APlus\WebFunctions.cs" Line="8" Column="23" />
+      <File FileName="APlus\ResponseManager.cs" Line="1" Column="1" />
+      <File FileName="APlus\GradesAdapter.cs" Line="3" Column="22" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

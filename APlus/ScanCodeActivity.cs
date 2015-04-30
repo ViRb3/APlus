@@ -1,15 +1,9 @@
 ﻿using System;
-using System.Text;
-
 using Android.App;
 using Android.Content;
 using Android.OS;
 using Android.Widget;
 using Android.Content.PM;
-using System.IO;
-using System.Security.Cryptography;
-using System.Text.RegularExpressions;
-using System.Linq;
 using System.Collections.Specialized;
 using System.Threading;
 
@@ -24,8 +18,6 @@ namespace APlus
 		private EditText _editTextSubject;
 
 		private string _qrCode;
-		private string[] _userCode;
-
 		private bool _scannedCode;
 
 		protected override void OnCreate (Bundle bundle)
@@ -64,7 +56,6 @@ namespace APlus
 			if (bundle != null) {
 				_seekBarGrade.Progress = bundle.GetInt ("grade") - 2;
 				_editTextSubject.Text = bundle.GetString ("subject");
-				_userCode = bundle.GetStringArray ("userCode");
 				_qrCode = bundle.GetString ("qrCode");
 			}
 
@@ -83,7 +74,6 @@ namespace APlus
 			bundle.PutBoolean("scannedCode", _scannedCode);
 			bundle.PutInt("grade", int.Parse(_txtViewGrade.Text));
 			bundle.PutString("subject", _editTextSubject.Text);
-			bundle.PutStringArray("userCode", _userCode);
 			bundle.PutString("qrCode", _qrCode);
 		}
 
@@ -108,32 +98,20 @@ namespace APlus
 			Intent resultData;
 
 			var data = new NameValueCollection();
-			data.Add("getstudentemail", string.Empty);
-			data.Add("firstname", _userCode[0]);
-			data.Add("lastname", _userCode[1]);
-			data.Add("class", _userCode[2]);
-
-			string reply = WebFunctions.Request (data);
-
-			if (!reply.Contains ("@")) {
-				resultData = new Intent();
-				resultData.PutExtra("error", reply);
-				SetResult(Result.Ok, resultData);
-				Finish ();
-				return;
-			}
-
-			data.Clear ();
 			data.Add ("newgrade", string.Empty);
 			data.Add ("subject", _editTextSubject.Text);
 			data.Add ("grade", _txtViewGrade.Text);
-			data.Add ("student", reply);
 			data.Add ("code", _qrCode);
 
-			string reply2 = WebFunctions.Request (data);
+			string reply = WebFunctions.Request (data);
+
+			if (string.IsNullOrWhiteSpace(reply) || reply == "Error") {
+				ThrowError ();
+				return;
+			}
 
 			resultData = new Intent();
-			resultData.PutExtra("reply", new[] {reply2, string.Format("{0} {1} {2}", _userCode[0], _userCode[1], _userCode[2])});
+			resultData.PutExtra("reply", reply);
 			SetResult(Result.Ok, resultData);
 			Finish ();
 		}
@@ -161,78 +139,24 @@ namespace APlus
 			}
 
 			string result = data.GetStringExtra("la.droid.qr.result");
-			_qrCode = result;
 
-			if (string.IsNullOrEmpty (result)) {
-				ThrowError ();
-				return;
-			}
-
-			try {
-				string rawUserCode = Decrypt(result);
-
-				if (string.IsNullOrEmpty (rawUserCode)) {
-					ThrowError ();
-					return;
-				}
-
-				_userCode = Regex.Split (rawUserCode, ":");
-
-				if (_userCode.Length != 3 || _userCode.Any(code => string.IsNullOrWhiteSpace(code))) {
-					ThrowError ();
-					return;
-				}
-			}
-			catch (Exception) {
+			if (string.IsNullOrWhiteSpace (result)) {
 				ThrowError ();
 				return;
 			}
 
 			_scannedCode = true;
+			_qrCode = result;
 		}
 
-		private void ThrowError()
+		private void ThrowError(string message = "Invalid QR code scanned!")
 		{
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
 			builder.SetTitle("Error");
-			builder.SetMessage("Invalid QR code scanned!");
+			builder.SetMessage(message);
 			builder.SetCancelable(false);
 			builder.SetNeutralButton ("OK", delegate { Finish(); });
 			builder.Show();
-		}
-
-		private string Decrypt(string data)
-		{
-			byte[] dataBytes = Convert.FromBase64String(data);
-
-			using (MemoryStream memoryStream = new MemoryStream())
-			{
-				memoryStream.Write(dataBytes, 0, dataBytes.Length);
-
-				using (AesManaged aes = new AesManaged())
-				{
-					aes.Key = GetCode();
-
-					byte[] iv = new byte[16];
-					memoryStream.Position = 0;
-					memoryStream.Read(iv, 0, 16);
-					aes.IV = iv;
-
-					using (var cryptoStream = new CryptoStream(memoryStream, aes.CreateDecryptor(), CryptoStreamMode.Read)) 
-					using (StreamReader streamReader = new StreamReader(cryptoStream))
-						return streamReader.ReadToEnd();        
-				}
-			}
-		}
-
-		private byte[] GetCode()
-		{
-			int code = 0;
-
-			foreach (char @char in "APlus")
-				code += @char;
-
-			return MD5.Create().ComputeHash(Encoding.UTF8.GetBytes(code.ToString()));
 		}
 
 		private bool IsPackageInstalled(String packageName, Context context) 

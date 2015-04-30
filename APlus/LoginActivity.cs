@@ -1,15 +1,9 @@
 ﻿using System;
-
 using Android.App;
-using Android.Content;
-using Android.Runtime;
-using Android.Views;
 using Android.Widget;
 using Android.OS;
-using System.Net;
 using System.Collections.Specialized;
 using System.Threading;
-using Java.Util.Concurrent;
 
 namespace APlus
 {
@@ -60,7 +54,7 @@ namespace APlus
 			var data = new NameValueCollection();
 			data.Add("login", string.Empty);
 			data.Add("email", _txtEmail.Text);
-			data.Add("password", Functions.GetMd5(_txtPassword.Text));
+			data.Add("password", Functions.GetSha256(_txtPassword.Text));
 
 			string reply = WebFunctions.Request(data);
 

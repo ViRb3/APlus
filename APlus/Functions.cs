@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using Android.App;
 using Android.Content;
 using System.Collections.Specialized;
-using Android.Widget;
-using System.Diagnostics;
 using Android.Net;
 using System.Collections.Generic;
 
@@ -38,18 +35,18 @@ namespace APlus
 			return false;	
 		}
 
-		public static string GetMd5(string input)
+		public static string GetSha256(string input)
 		{
-			var md5 = MD5.Create();
-			byte[] data = md5.ComputeHash(Encoding.UTF8.GetBytes(input));
+			SHA256Managed sha256 = new SHA256Managed();
+			byte[] hash = sha256.ComputeHash(Encoding.UTF8.GetBytes(input));
 
 			StringBuilder stringBuilder = new StringBuilder();
 
-			for (int i = 0; i < data.Length; i++)
+			foreach (byte @byte in hash)
 			{
-				stringBuilder.Append(data[i].ToString("x2"));
+				stringBuilder.Append(@byte.ToString("x2"));
 			}
-				
+
 			return stringBuilder.ToString();
 		}
 			
