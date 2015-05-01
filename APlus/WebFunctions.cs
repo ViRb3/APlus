@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Collections.Specialized;
 using System.Linq;
+using System.Text;
 using Android.App;
 using Android.Widget;
 using Android.Content;
@@ -54,7 +55,7 @@ namespace APlus
 
 		    try
 		    {
-                response = WebClient.UploadValues(Server, "POST", data);
+				response = _webClient.UploadValues(_server, "POST", data);
 		    }
 		    catch (WebException e)
 		    {
