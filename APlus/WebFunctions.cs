@@ -50,12 +50,28 @@ namespace APlus
 
 		public static string Request(NameValueCollection data)
 		{
-			byte[] response = _webClient.UploadValues(_server, "POST", data);
+			byte[] response;
+
+		    try
+		    {
+                response = WebClient.UploadValues(Server, "POST", data);
+		    }
+		    catch (WebException e)
+		    {
+		        return e.Message;
+		    }
+
 			string result = _webClient.Encoding.GetString(response);
 
 			if (result != "Login success!")
 				return result;
 
+			HandleLogin();
+			return result;
+		}
+
+		private static void HandleLogin()
+		{
 			if (_signedInCookie == null)
 				_signedInCookie = _webClient.CookieJar.GetCookies(new Uri(_server)).Cast<Cookie>().FirstOrDefault(c => c.Name == "signedUser");
 
@@ -72,8 +88,6 @@ namespace APlus
 
 				Functions.SaveSetting("signedInCookie", settings.ToArray());
 			}
-
-			return result;
 		}
 			
 		public static void ClearCookies()
@@ -85,6 +99,11 @@ namespace APlus
 
 	class BetterWebClient : WebClient
 	{
+		public BetterWebClient()
+	    {
+	        this.Encoding = Encoding.UTF8;
+	    }
+
 		public CookieContainer CookieJar = new CookieContainer();
 
 		protected override WebRequest GetWebRequest(Uri address)
