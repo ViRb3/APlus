@@ -1,19 +1,20 @@
 ﻿using System;
+using System.Collections.Specialized;
+using System.Threading;
+
 using Android.App;
 using Android.Content;
 using Android.OS;
 using Android.Widget;
 using Android.Content.PM;
-using System.Collections.Specialized;
-using System.Threading;
 
 namespace APlus
 {
 	[Activity (Label = "ScanCode")]			
 	public class ScanCodeActivity : Activity
 	{
-	    private SeekBar _seekBarGrade;
-        private TextView _txtViewGrade;
+		private SeekBar _seekBarGrade;
+		private TextView _txtViewGrade;
 		private Button _btnGradeCommit;
 		private EditText _editTextSubject;
 
@@ -29,37 +30,44 @@ namespace APlus
 			if (bundle != null)
 				_scannedCode = bundle.GetBoolean ("scannedCode");
 
-			if (!IsPackageInstalled ("la.droid.qr", this)) {
-				AlertDialog.Builder builder = new AlertDialog.Builder(this);
-				builder.SetTitle("Error");
-				builder.SetMessage("The external application \"QR Droid\" is required but not installed.\r\nWould you like to do that now?");
-				builder.SetCancelable(false);
-				builder.SetPositiveButton("Yes", delegate { GetQRDroid(); });
-				builder.SetNegativeButton("No", delegate { Finish(); });
-				builder.Show();
+			if (!IsPackageInstalled ("la.droid.qr", this))
+			{
+				AlertDialog.Builder builder = new AlertDialog.Builder (this);
+				builder.SetTitle ("Error");
+				builder.SetMessage ("The external application \"QR Droid\" is required but not installed.\r\nWould you like to do that now?");
+				builder.SetCancelable (false);
+				builder.SetPositiveButton ("Yes", delegate {
+					GetQRDroid ();
+				});
+				builder.SetNegativeButton ("No", delegate {
+					Finish ();
+				});
+				builder.Show ();
 
 				return;
 			}
 
-			if (!_scannedCode) {
-				Intent qrDroid = new Intent("la.droid.qr.scan");
-				qrDroid.PutExtra("la.droid.qr.complete" , true);
-				StartActivityForResult(qrDroid, 0);
+			if (!_scannedCode)
+			{
+				Intent qrDroid = new Intent ("la.droid.qr.scan");
+				qrDroid.PutExtra ("la.droid.qr.complete", true);
+				StartActivityForResult (qrDroid, 1);
 			}
 
-            _txtViewGrade = FindViewById<TextView> (Resource.Id.txtViewGrade);
+			_txtViewGrade = FindViewById<TextView> (Resource.Id.txtViewGrade);
 			_editTextSubject = FindViewById<EditText> (Resource.Id.editTextSubject);
 
 			_seekBarGrade = FindViewById<SeekBar> (Resource.Id.seekBarGrade);
-            _seekBarGrade.ProgressChanged += seekBar_ProgressChanged;
+			_seekBarGrade.ProgressChanged += seekBar_ProgressChanged;
 
-			if (bundle != null) {
+			if (bundle != null)
+			{
 				_seekBarGrade.Progress = bundle.GetInt ("grade") - 2;
 				_editTextSubject.Text = bundle.GetString ("subject");
 				_qrCode = bundle.GetString ("qrCode");
 			}
 
-			_btnGradeCommit = FindViewById<Button>(Resource.Id.btnGradeCommit);
+			_btnGradeCommit = FindViewById<Button> (Resource.Id.btnGradeCommit);
 			_btnGradeCommit.Click += Commit;
 		}
 
@@ -69,22 +77,24 @@ namespace APlus
 			Functions.CurrentContext = this;
 		}
 
-		protected override void OnSaveInstanceState(Bundle bundle) 
+		protected override void OnSaveInstanceState (Bundle bundle)
 		{
-			bundle.PutBoolean("scannedCode", _scannedCode);
-			bundle.PutInt("grade", int.Parse(_txtViewGrade.Text));
-			bundle.PutString("subject", _editTextSubject.Text);
-			bundle.PutString("qrCode", _qrCode);
+			bundle.PutBoolean ("scannedCode", _scannedCode);
+			bundle.PutInt ("grade", int.Parse (_txtViewGrade.Text));
+			bundle.PutString ("subject", _editTextSubject.Text);
+			bundle.PutString ("qrCode", _qrCode);
 		}
 
 		private void Commit (object sender, EventArgs e)
 		{
-			if (string.IsNullOrWhiteSpace (_editTextSubject.Text)) {
+			if (string.IsNullOrWhiteSpace (_editTextSubject.Text))
+			{
 				ResponseManager.ShowMessage ("Error", "Subject cannot be empty!");
 				return;
 			}
 
-			if (Functions.IsOffline()) {
+			if (Functions.IsOffline ())
+			{
 				ResponseManager.ShowMessage ("Error", "Cannot complete action while offline.");
 				return;
 			}
@@ -93,11 +103,11 @@ namespace APlus
 			ThreadPool.QueueUserWorkItem (o => DoCommit ());
 		}
 
-		private void DoCommit()
+		private void DoCommit ()
 		{
 			Intent resultData;
 
-			var data = new NameValueCollection();
+			var data = new NameValueCollection ();
 			data.Add ("newgrade", string.Empty);
 			data.Add ("subject", _editTextSubject.Text);
 			data.Add ("grade", _txtViewGrade.Text);
@@ -105,42 +115,48 @@ namespace APlus
 
 			string reply = WebFunctions.Request (data);
 
-			if (string.IsNullOrWhiteSpace(reply) || reply == "Error") {
+			if (string.IsNullOrWhiteSpace (reply) || reply == "Error")
+			{
 				ThrowError ();
 				return;
 			}
 
-			resultData = new Intent();
-			resultData.PutExtra("reply", reply);
-			SetResult(Result.Ok, resultData);
+			resultData = new Intent ();
+			resultData.PutExtra ("reply", reply);
+			SetResult (Result.Ok, resultData);
 			Finish ();
 		}
 
-		private void GetQRDroid()
+		private void GetQRDroid ()
 		{
 			Intent playStore = new Intent (Intent.ActionView, Android.Net.Uri.Parse ("market://details?id=la.droid.qr"));
-			playStore.AddFlags(ActivityFlags.NewTask);
-			StartActivity(playStore);
+			playStore.AddFlags (ActivityFlags.NewTask);
+			StartActivity (playStore);
 			Finish ();
 		}
 
-        private void seekBar_ProgressChanged(object sender, SeekBar.ProgressChangedEventArgs e)
-        {
-            _txtViewGrade.Text = (e.Progress + 2).ToString();
-        }
-
-		protected override void OnActivityResult(int requestCode, Result resultCode, Intent data)
+		private void seekBar_ProgressChanged (object sender, SeekBar.ProgressChangedEventArgs e)
 		{
-			base.OnActivityResult(requestCode, resultCode, data);
+			_txtViewGrade.Text = (e.Progress + 2).ToString ();
+		}
 
-			if (data == null) {
+		protected override void OnActivityResult (int requestCode, Result resultCode, Intent data)
+		{
+			base.OnActivityResult (requestCode, resultCode, data);
+
+			if (requestCode != 1)
+				return;
+			
+			if (data == null)
+			{
 				Finish ();
 				return;
 			}
 
-			string result = data.GetStringExtra("la.droid.qr.result");
+			string result = data.GetStringExtra ("la.droid.qr.result");
 
-			if (string.IsNullOrWhiteSpace (result)) {
+			if (string.IsNullOrWhiteSpace (result))
+			{
 				ThrowError ();
 				return;
 			}
@@ -149,24 +165,28 @@ namespace APlus
 			_qrCode = result;
 		}
 
-		private void ThrowError(string message = "Invalid QR code scanned!")
+		private void ThrowError (string message = "Invalid QR code scanned!")
 		{
-			AlertDialog.Builder builder = new AlertDialog.Builder(this);
-			builder.SetTitle("Error");
-			builder.SetMessage(message);
-			builder.SetCancelable(false);
-			builder.SetNeutralButton ("OK", delegate { Finish(); });
-			builder.Show();
+			AlertDialog.Builder builder = new AlertDialog.Builder (this);
+			builder.SetTitle ("Error");
+			builder.SetMessage (message);
+			builder.SetCancelable (false);
+			builder.SetNeutralButton ("OK", delegate {
+				Finish ();
+			});
+			builder.Show ();
 		}
 
-		private bool IsPackageInstalled(String packageName, Context context) 
+		private bool IsPackageInstalled (String packageName, Context context)
 		{
 			PackageManager pm = context.PackageManager;
 
-			try {
-				pm.GetPackageInfo(packageName, PackageInfoFlags.Activities);
+			try
+			{
+				pm.GetPackageInfo (packageName, PackageInfoFlags.Activities);
 				return true;
-			} catch (PackageManager.NameNotFoundException) {
+			} catch (PackageManager.NameNotFoundException)
+			{
 				return false;
 			}
 		}

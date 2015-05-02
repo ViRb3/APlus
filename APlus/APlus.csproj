@@ -62,6 +62,7 @@
     <Compile Include="ScanCodeActivity.cs" />
     <Compile Include="GradesAdapter.cs" />
     <Compile Include="ResponseManager.cs" />
+    <Compile Include="RegisterActivity.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />
@@ -83,11 +84,11 @@
     <AndroidResource Include="Resources\layout\MainTeacher.axml" />
     <AndroidResource Include="Resources\layout\MainStudent.axml" />
     <AndroidResource Include="Resources\layout\ScanCode.axml" />
-    <AndroidResource Include="Resources\layout\SpinnerItem.axml" />
     <AndroidResource Include="Resources\drawable-hdpi\ic_action_refresh.png" />
     <AndroidResource Include="Resources\drawable-mdpi\ic_action_refresh.png" />
     <AndroidResource Include="Resources\drawable-xhdpi\ic_action_refresh.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_action_refresh.png" />
+    <AndroidResource Include="Resources\layout\Register.axml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />
   <ItemGroup />

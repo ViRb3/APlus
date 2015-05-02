@@ -4,36 +4,56 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
-    <EditText
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="textEmailAddress"
-        android:ems="10"
-        android:id="@+id/txtEmail"
-        android:layout_alignParentTop="true"
-        android:hint="E-mail"
-        android:layout_marginTop="33dp"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp" />
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="textPassword"
-        android:ems="10"
-        android:id="@+id/txtPassword"
-        android:layout_below="@+id/txtEmail"
-        android:hint="Password"
-        android:layout_marginTop="30dp"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp" />
-    <Button
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:text="Log in"
-        android:id="@+id/btnLogin"
-        android:layout_centerInParent="true"
-        android:layout_below="@+id/txtPassword"
-        android:layout_marginTop="70dp"
-        android:textColor="#ffffff"
-        android:background="@drawable/myButton" />
+        android:layout_height="match_parent">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textEmailAddress"
+                android:ems="10"
+                android:id="@+id/txtEmail"
+                android:layout_alignParentTop="true"
+                android:hint="E-mail"
+                android:layout_marginTop="33dp"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp" />
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword"
+                android:ems="10"
+                android:id="@+id/txtPassword"
+                android:layout_below="@+id/txtEmail"
+                android:hint="Password"
+                android:layout_marginTop="30dp"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp" />
+            <Button
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:text="Log in"
+                android:id="@+id/btnLogin"
+                android:layout_centerInParent="true"
+                android:layout_below="@+id/txtPassword"
+                android:layout_marginTop="70dp"
+                android:textColor="#ffffff"
+                android:background="@drawable/myButton" />
+            <TextView
+                android:text="No account? Register now!"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/btnLogin"
+                android:id="@+id/lblRegister"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="10dp"
+                android:textSize="15dp"
+                android:textStyle="italic"
+                android:textColor="#ff606060" />
+        </RelativeLayout>
+    </ScrollView>
 </RelativeLayout>

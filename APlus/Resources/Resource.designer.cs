@@ -66,56 +66,68 @@ namespace APlus
 		public partial class Id
 		{
 			
-			// aapt resource value: 0x7f060010
-			public const int action_refresh = 2131099664;
+			// aapt resource value: 0x7f060014
+			public const int action_refresh = 2131099668;
 			
-			// aapt resource value: 0x7f06000f
-			public const int action_settings = 2131099663;
-			
-			// aapt resource value: 0x7f060005
-			public const int btnGradeClass = 2131099653;
-			
-			// aapt resource value: 0x7f06000d
-			public const int btnGradeCommit = 2131099661;
+			// aapt resource value: 0x7f060013
+			public const int action_settings = 2131099667;
 			
 			// aapt resource value: 0x7f060006
-			public const int btnGradeIndividual = 2131099654;
+			public const int btnGradeClass = 2131099654;
+			
+			// aapt resource value: 0x7f060012
+			public const int btnGradeCommit = 2131099666;
+			
+			// aapt resource value: 0x7f060007
+			public const int btnGradeIndividual = 2131099655;
 			
 			// aapt resource value: 0x7f060002
 			public const int btnLogin = 2131099650;
 			
 			// aapt resource value: 0x7f06000c
-			public const int editTextSubject = 2131099660;
+			public const int btnRegister = 2131099660;
 			
-			// aapt resource value: 0x7f060004
-			public const int listView1 = 2131099652;
+			// aapt resource value: 0x7f060011
+			public const int editTextSubject = 2131099665;
 			
 			// aapt resource value: 0x7f060003
-			public const int relativeLayout1 = 2131099651;
+			public const int lblRegister = 2131099651;
 			
-			// aapt resource value: 0x7f060007
-			public const int scrollView1 = 2131099655;
+			// aapt resource value: 0x7f060005
+			public const int listView1 = 2131099653;
 			
-			// aapt resource value: 0x7f060009
-			public const int seekBarGrade = 2131099657;
+			// aapt resource value: 0x7f060004
+			public const int relativeLayout1 = 2131099652;
 			
 			// aapt resource value: 0x7f06000e
-			public const int textItem = 2131099662;
+			public const int seekBarGrade = 2131099662;
+			
+			// aapt resource value: 0x7f060010
+			public const int textView1 = 2131099664;
 			
 			// aapt resource value: 0x7f06000b
-			public const int textView1 = 2131099659;
+			public const int txtClass = 2131099659;
 			
 			// aapt resource value: 0x7f060000
 			public const int txtEmail = 2131099648;
 			
+			// aapt resource value: 0x7f060009
+			public const int txtFirstName = 2131099657;
+			
+			// aapt resource value: 0x7f06000a
+			public const int txtLastName = 2131099658;
+			
 			// aapt resource value: 0x7f060001
 			public const int txtPassword = 2131099649;
 			
-			// aapt resource value: 0x7f06000a
-			public const int txtViewGrade = 2131099658;
-			
 			// aapt resource value: 0x7f060008
-			public const int txtViewGradeLabel = 2131099656;
+			public const int txtPassword2 = 2131099656;
+			
+			// aapt resource value: 0x7f06000f
+			public const int txtViewGrade = 2131099663;
+			
+			// aapt resource value: 0x7f06000d
+			public const int txtViewGradeLabel = 2131099661;
 			
 			static Id()
 			{
@@ -140,10 +152,10 @@ namespace APlus
 			public const int MainTeacher = 2130903042;
 			
 			// aapt resource value: 0x7f030003
-			public const int ScanCode = 2130903043;
+			public const int Register = 2130903043;
 			
 			// aapt resource value: 0x7f030004
-			public const int SpinnerItem = 2130903044;
+			public const int ScanCode = 2130903044;
 			
 			static Layout()
 			{

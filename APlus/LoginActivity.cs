@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Collections.Specialized;
+using System.Threading;
+
 using Android.App;
 using Android.Widget;
 using Android.OS;
-using System.Collections.Specialized;
-using System.Threading;
 
 namespace APlus
 {
@@ -12,6 +13,7 @@ namespace APlus
 	{
 		Button _btnLogin;
 		EditText _txtEmail, _txtPassword;
+		TextView _lblRegister;
 
 		protected override void OnCreate (Bundle bundle)
 		{
@@ -20,15 +22,17 @@ namespace APlus
 
 			Functions.DeleteSetting ("signedInCookie");
 			Functions.DeleteSetting ("settings", "loggedIn");
-			WebFunctions.ClearCookies();
+			WebFunctions.ClearCookies ();
 
 			SetContentView (Resource.Layout.Login);
 
 			_btnLogin = FindViewById<Button> (Resource.Id.btnLogin);
 			_txtEmail = FindViewById<EditText> (Resource.Id.txtEmail);
 			_txtPassword = FindViewById<EditText> (Resource.Id.txtPassword);
+			_lblRegister = FindViewById<TextView> (Resource.Id.lblRegister);
 
 			_btnLogin.Click += btnLogin_OnClick;
+			_lblRegister.Click += btnRegister_OnClick;
 		}
 
 		protected override void OnResume ()
@@ -37,48 +41,67 @@ namespace APlus
 			Functions.CurrentContext = this;
 		}
 
-		void btnLogin_OnClick(object sender, EventArgs e)
+		private void btnLogin_OnClick (object sender, EventArgs e)
 		{
-			ThreadPool.QueueUserWorkItem (o => Do_btnLogin_OnClick (sender, e));
+			ThreadPool.QueueUserWorkItem (o => DoLogin (sender, e));
 		}
 
-		void Do_btnLogin_OnClick(object sender, EventArgs e)
+		private void DoLogin (object sender, EventArgs e)
 		{
-			if (Functions.IsOffline()) {
-				RunOnUiThread(() => ResponseManager.ShowMessage("Error", "No internet connection!"));
+			if (Functions.IsOffline ())
+			{
+				RunOnUiThread (() => ResponseManager.ShowMessage ("Error", "No internet connection!"));
 				return;
 			}
 
 			ResponseManager.ShowLoading ("Logging in..."); 
 
-			var data = new NameValueCollection();
-			data.Add("login", string.Empty);
-			data.Add("email", _txtEmail.Text);
-			data.Add("password", Functions.GetSha256(_txtPassword.Text));
+			var data = new NameValueCollection ();
+			data.Add ("login", string.Empty);
+			data.Add ("email", _txtEmail.Text);
+			data.Add ("password", Functions.GetSha256 (_txtPassword.Text));
 
-			string reply = WebFunctions.Request(data);
+			string reply = WebFunctions.Request (data);
 
-			if (reply != "Login success!") {
+			if (reply != "Login success!")
+			{
 				ResponseManager.DismissLoading (); 
-				RunOnUiThread(() => ResponseManager.ShowMessage("Error", reply));
+				RunOnUiThread (() => ResponseManager.ShowMessage ("Error", reply));
+				WebFunctions.ClearCookies ();
 				return;
 			}	
 
 			data.Clear ();
-			data.Add("getaccounttype", string.Empty);
+			data.Add ("getaccounttype", string.Empty);
 
-			reply = WebFunctions.Request(data);
+			reply = WebFunctions.Request (data);
 
-			if (reply != "student" && reply != "teacher") {
+			if (reply != "student" && reply != "teacher")
+			{
 				ResponseManager.DismissLoading (); 
-				RunOnUiThread(() => ResponseManager.ShowMessage("Error", "Unrecognized account type!"));
+				RunOnUiThread (() => ResponseManager.ShowMessage ("Error", "Unrecognized account type!"));
+				WebFunctions.ClearCookies ();
 				return;
 			}		
 
 			Functions.SaveSetting ("settings", "accountType", reply);
 			Functions.SaveSetting ("settings", "loggedIn", "true");
 			StartActivity (typeof(MainActivity));
-			Finish();
+			Finish ();
+		}
+
+		private void btnRegister_OnClick (object sender, EventArgs e)
+		{
+			StartActivityForResult (typeof(RegisterActivity), 1);
+		}
+
+		protected override void OnActivityResult (int requestCode, Result resultCode, Android.Content.Intent data)
+		{
+			if (requestCode != 1 || resultCode != Result.Ok || data == null)
+				return;
+
+			_txtEmail.Text = data.GetStringExtra ("email");
+			_txtPassword.Text = data.GetStringExtra ("password");
 		}
 	}
 }
