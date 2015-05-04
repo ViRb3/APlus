@@ -104,7 +104,7 @@ namespace APlus
 		{
 			List<string> listArray = new List<string> (array);
 
-			while (string.IsNullOrWhiteSpace (listArray [listArray.Count - 1]))
+			while (listArray.Count - 1 >= 0 && string.IsNullOrWhiteSpace(listArray[listArray.Count - 1]))
 				listArray.RemoveAt (listArray.Count - 1);
 
 			return listArray.ToArray ();
