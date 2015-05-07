@@ -1,22 +1,17 @@
 ﻿using Android.App;
-using Android.Views;
-using Android.Widget;
 
 namespace APlus
 {
 	public static class ResponseManager
 	{
-		private static ProgressDialog _progressDialog = null;
-		private static AlertDialog.Builder _alertDialog = null;
+		private static ProgressDialogFragment _progressDialog = null;
 
 		public static bool ShowLoading (string message)
 		{
 			Functions.CurrentContext.RunOnUiThread (() => {
-				_progressDialog = new ProgressDialog (Functions.CurrentContext);
-				_progressDialog.SetProgressStyle (ProgressDialogStyle.Spinner);
-				_progressDialog.SetMessage (message);
-				_progressDialog.SetCanceledOnTouchOutside (false);
-				_progressDialog.Show ();
+				_progressDialog = new ProgressDialogFragment();
+				_progressDialog.Initialize(message, string.Empty);
+				_progressDialog.Show();
 			});
 			
 			return true;
@@ -35,18 +30,9 @@ namespace APlus
 		public static bool ShowMessage (string title, string message)
 		{
 			Functions.CurrentContext.RunOnUiThread (() => {
-				_alertDialog = new AlertDialog.Builder (Functions.CurrentContext);
-
-				View view = Functions.CurrentContext.LayoutInflater.Inflate(Resource.Layout.ScrollableAlert, null);
-				TextView textView = view.FindViewById<TextView> (Resource.Id.textView);
-				textView.Text = message;
-				_alertDialog.SetView(view);
-
-				_alertDialog.SetTitle (title);
-				_alertDialog.SetCancelable (false);
-				_alertDialog.SetPositiveButton ("OK", delegate {
-				});
-				_alertDialog.Show ();
+				var dialogFragment = new DialogFragment();
+				dialogFragment.InitializeOk(message, title, delegate { }, true);
+				dialogFragment.Show();
 			});
 
 			return true;

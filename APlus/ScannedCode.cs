@@ -12,7 +12,7 @@ namespace APlus
 {
 	public static class ScannedCodesCollection
 	{
-		private static List<ScannedCode> _scannedCodes = new List<ScannedCode> ();
+		private static readonly List<ScannedCode> _scannedCodes = new List<ScannedCode> ();
 
 		public static void AddCode(ScannedCode code)
 		{
@@ -55,17 +55,20 @@ namespace APlus
 			
 		public static void Save(ScannedCode code)
 		{
-			Functions.SaveSetting ("settings", "savedCode" + (CountSavedCodes () + 1), SerializeCode (code));
+			Load ();
+			Functions.SaveSetting ("savedCodes", "code" + (_scannedCodes.Count), SerializeCode (code));
 		}
 
 		public static void Load()
 		{
-			_scannedCodes.Clear ();
+			if (_scannedCodes.Count > 0)
+				return;
+			
 			int index = 1;
 
 			while (true)
 			{
-				string serializedClass = Functions.GetSetting ("settings", "savedCode" + index);
+				string serializedClass = Functions.GetSetting ("savedCodes", "code" + index);
 
 				if (string.IsNullOrEmpty(serializedClass))
 					break;
@@ -77,55 +80,76 @@ namespace APlus
 			}
 		}
 
-		public static int CountSavedCodes()
+		public static void DeleteFirstCode()
 		{
-			int index = 1;
-
-			while (true)
-			{
-				string serializedClass = Functions.GetSetting ("settings", "savedCode" + index);
-
-				if (string.IsNullOrEmpty (serializedClass))
-					if (index == 1)
-						return 0;
-					else
-						break;
-
-				index++;
-			}
-
-			return index;
+			_scannedCodes.RemoveAt (0);
+			Functions.DeleteSetting ("savedCodes", "code1");
+			FixCodeIndexes (2);
 		}
 
-		public static void DeleteCode(ScannedCode code)
+		public static void FixCodeIndexes(int firstIndex)
 		{
-			int index = _scannedCodes.IndexOf (code);
-			_scannedCodes.RemoveAt (index);
-			Functions.DeleteSetting ("settings", "savedCode" + (index + 1));
+			while (true)
+			{
+				string serializedClass = Functions.GetSetting ("savedCodes", "code" + firstIndex);
+
+				if (string.IsNullOrEmpty (serializedClass))
+				{
+					Functions.DeleteSetting ("savedCodes", "code" + (firstIndex - 1)); // clear old duplicate
+					break;
+				}
+
+				Functions.SaveSetting ("savedCodes", "code" + (firstIndex - 1), serializedClass);
+
+				firstIndex++;
+			}
 		}
 
 		public static void DeleteAllCodes()
 		{
-			Load ();
-
-			for(int i = 0; i < _scannedCodes.Count; i++)
-				DeleteCode (_scannedCodes[i]);
+			Functions.DeleteSetting ("savedCodes");
+			_scannedCodes.Clear ();
 
 			ResponseManager.ShowMessage ("Success", "All local grades deleted!");
+		}
+
+		public static void DeleteCode(ScannedCode code)
+		{
+			Load ();
+
+			int index = 1;
+
+			while (true)
+			{
+				string serializedClass = Functions.GetSetting ("savedCodes", "code" + index);
+
+				if (string.IsNullOrEmpty(serializedClass))
+					break;
+
+				ScannedCode deserializedCode = DeserializeCode (serializedClass);
+
+				if (code.Code == deserializedCode.Code)
+				{
+					Functions.DeleteSetting ("savedCodes", "code" + index);
+					_scannedCodes.Remove (code);
+					FixCodeIndexes (index + 1);
+					break;
+				}
+
+				index++;
+			}
 		}
 			
 		public static void Sync()
 		{
+			Load ();
+
 			if (_scannedCodes.Count == 0)
 			{
-				Load ();
-
-				if (_scannedCodes.Count == 0)
-				{
-					ResponseManager.ShowMessage ("Note", "No grades to sync!");
-					return;
-				}
+				ResponseManager.ShowMessage ("Note", "No grades to sync!");
+				return;
 			}
+
 			StringBuilder stringBuilder = new StringBuilder ();
 
 			foreach (var code in _scannedCodes)
@@ -143,15 +167,15 @@ namespace APlus
 			foreach (string line in formattedReply)
 			{
 				if (line.StartsWith ("Grade saved"))
-					DeleteCode (_scannedCodes [0]);
+					DeleteFirstCode ();
 				else if (line.StartsWith ("Code already used"))
-					DeleteCode (_scannedCodes [0]);
+					DeleteFirstCode ();
 			}
 
 			reply = reply.Replace ("Grade saved!", string.Empty);
 			reply = reply.Replace ("Code already used!", string.Empty);
 			formattedReply = Regex.Split (reply, Environment.NewLine);
-			formattedReply = Functions.TrimArray (formattedReply);
+			formattedReply = formattedReply.TrimArray();
 
 			List<string> gradedStudents = new List<string> ();
 			StringBuilder resultMessage = new StringBuilder ();
@@ -172,16 +196,22 @@ namespace APlus
 					return;
 				}
 			}
-				
-			resultMessage.AppendLine ("Grades successfully synced to server!");
-			resultMessage.AppendLine ("Graded students:");
-			resultMessage.AppendLine ();
 
-			foreach (string student in Functions.ShuffleArray(gradedStudents.ToArray()))
+			if (gradedStudents.Count == 0)
 			{
-				resultMessage.AppendLine (student);
-			}
+				resultMessage.AppendLine ("All sent codes were already graded!");
+			} 
+			else
+			{
+				resultMessage.AppendLine ("Grades successfully synced to server! Results:");
+				resultMessage.AppendLine ();
 
+				foreach (string student in Functions.ShuffleArray(gradedStudents.ToArray()))
+				{
+					resultMessage.AppendLine (student);
+				}
+			}
+				
 			Functions.CurrentContext.RunOnUiThread (() => ResponseManager.ShowMessage ("Success", resultMessage.ToString ()));
 		}
 
@@ -189,6 +219,12 @@ namespace APlus
 		{
 			Load ();
 			return _scannedCodes.First (sc => sc.Code == code);
+		}
+
+		public static int CodesCount()
+		{
+			Load ();
+			return _scannedCodes.Count;
 		}
 	}
 

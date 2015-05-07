@@ -93,21 +93,17 @@ namespace APlus
 			}	
 
 			RunOnUiThread (delegate {
-				Functions.CurrentContext.RunOnUiThread (() => {
-					AlertDialog.Builder alertDialog = new AlertDialog.Builder (Functions.CurrentContext);
-					alertDialog.SetTitle ("Success");
-					alertDialog.SetMessage (reply);
-					alertDialog.SetCancelable (false);
-					alertDialog.SetPositiveButton ("OK", delegate {
-						Intent resultData = new Intent ();
-						resultData.PutExtra ("email", _txtEmail.Text);
-						resultData.PutExtra ("password", _txtPassword.Text);
-						SetResult (Result.Ok, resultData);
-						Finish();
-					});
+				var dialogFragment = new DialogFragment();
 
-					alertDialog.Show ();
+				dialogFragment.InitializeOk(reply, "Success", delegate {
+					Intent resultData = new Intent ();
+					resultData.PutExtra ("email", _txtEmail.Text);
+					resultData.PutExtra ("password", _txtPassword.Text);
+					SetResult (Result.Ok, resultData);
+					Finish();
 				});
+
+				dialogFragment.Show();
 			});
 		}
 	}

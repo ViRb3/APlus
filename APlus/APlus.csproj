@@ -64,6 +64,8 @@
     <Compile Include="ResponseManager.cs" />
     <Compile Include="RegisterActivity.cs" />
     <Compile Include="ScannedCode.cs" />
+    <Compile Include="DialogFragment.cs" />
+    <Compile Include="ProgressDialogFragment.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />

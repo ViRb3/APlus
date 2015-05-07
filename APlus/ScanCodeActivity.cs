@@ -5,6 +5,7 @@ using Android.Content;
 using Android.OS;
 using Android.Widget;
 using Android.Content.PM;
+using System.Text;
 
 namespace APlus
 {
@@ -42,25 +43,19 @@ namespace APlus
 
 			if (_codeAlreadyUsed)
 			{
-				ScannedCode code = ScannedCodesCollection.GetFullCodeFromCode (_qrCode);
-				ThrowError (string.Format("Code has already been graded at {0} with {1}!", code.Subject, code.Grade));
+				ShowCodeAlreadyScannedDialog();
 				return;
 			}
 
 			if (!IsPackageInstalled ("la.droid.qr", this))
 			{
-				AlertDialog.Builder builder = new AlertDialog.Builder (this);
-				builder.SetTitle ("Error");
-				builder.SetMessage ("The external application \"QR Droid\" is required but not installed.\r\nWould you like to do that now?");
-				builder.SetCancelable (false);
-				builder.SetPositiveButton ("Yes", delegate {
-					GetQRDroid ();
+				var dialogFragment = new DialogFragment ();
+				dialogFragment.InitializeYesNo ("The external application \"QR Droid\" is required but not installed.\r\nWould you like to do that now?", "Error", 
+					delegate { GetQRDroid (); }, 
+					delegate { Finish ();
 				});
-				builder.SetNegativeButton ("No", delegate {
-					Finish ();
-				});
-				builder.Show ();
 
+				dialogFragment.Show ();
 				return;
 			}
 
@@ -102,6 +97,9 @@ namespace APlus
 
 		private void Finish (object sender, EventArgs e)
 		{
+			if (!CheckDataOk ())
+				return;
+			
 			if (string.IsNullOrWhiteSpace (_editTextSubject.Text))
 			{
 				ResponseManager.ShowMessage ("Error", "Subject cannot be empty!");
@@ -115,6 +113,9 @@ namespace APlus
 
 		private void Next (object sender, EventArgs e)
 		{
+			if (!CheckDataOk ())
+				return;
+			
 			ScannedCode code = new ScannedCode (_editTextSubject.Text, int.Parse (_txtViewGrade.Text), _qrCode);
 			ScannedCodesCollection.AddCode(code);
 
@@ -125,7 +126,18 @@ namespace APlus
 
 			StartActivity(intent);
 			Finish ();
-		}			
+		}		
+
+		private bool CheckDataOk()
+		{
+			if (string.IsNullOrWhiteSpace (_editTextSubject.Text))
+			{
+				ResponseManager.ShowMessage ("Error", "Subject cannot be empty!");
+				return false;
+			}
+
+			return true;
+		}
 
 		private void GetQRDroid ()
 		{
@@ -157,7 +169,7 @@ namespace APlus
 
 			if (string.IsNullOrWhiteSpace (result))
 			{
-				ThrowError ();
+				ResponseManager.ShowMessage ("Error", "Invalid QR code scanned!");
 				return;
 			}
 
@@ -166,25 +178,30 @@ namespace APlus
 			if (ScannedCodesCollection.CodeExists (result))
 			{
 				_codeAlreadyUsed = true;
-				ScannedCode code = ScannedCodesCollection.GetFullCodeFromCode (_qrCode);
-				ThrowError (string.Format("Code has already been graded at {0} with {1}!", code.Subject, code.Grade));
+				ShowCodeAlreadyScannedDialog();
 				return;
 			}
 
 			_scannedCode = true;
 		}
 
-		private void ThrowError (string message = "Invalid QR code scanned!")
+		private void ShowCodeAlreadyScannedDialog()
 		{
-			AlertDialog.Builder builder = new AlertDialog.Builder (this);
-			builder.SetTitle ("Error");
-			builder.SetMessage (message);
-			builder.SetCancelable (false);
-			builder.SetNeutralButton ("OK", delegate {
-				Finish ();
+			ScannedCode code = ScannedCodesCollection.GetFullCodeFromCode (_qrCode);
+
+			StringBuilder stringBuilder = new StringBuilder ();
+			stringBuilder.AppendLine (string.Format ("Code has already been graded at {0} with {1}!", code.Subject, code.Grade));
+			stringBuilder.Append ("Do you want to delete the old grade and save a new one?");
+
+			var dialogFragment = new DialogFragment ();
+			dialogFragment.InitializeYesNo (stringBuilder.ToString (), "Question", delegate {
+				ScannedCodesCollection.DeleteCode(code);
+				_codeAlreadyUsed = false;
+			}, delegate {
+				Finish();
 			});
 
-			builder.Show ();
+			dialogFragment.Show ();
 		}
 
 		private bool IsPackageInstalled (String packageName, Context context)

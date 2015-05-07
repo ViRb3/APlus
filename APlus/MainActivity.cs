@@ -16,7 +16,6 @@ namespace APlus
 	public class MainActivity : Activity
 	{
 		private bool _checkedStatus;
-		private string _pendingMessage;
 
 		protected override void OnCreate (Bundle bundle)
 		{
@@ -46,13 +45,9 @@ namespace APlus
 		protected override void OnResume ()
 		{
 			base.OnResume ();
-			Functions.CurrentContext = this;
 
-			if (!string.IsNullOrWhiteSpace (_pendingMessage))
-			{
-				ResponseManager.ShowMessage ("Result", _pendingMessage);
-				_pendingMessage = null;
-			}
+			Functions.CurrentContext = this;
+			UpdateCounter ();
 		}
 
 		private void InitializeTeacher ()
@@ -63,6 +58,9 @@ namespace APlus
 
 			Button btnGrade = FindViewById<Button> (Resource.Id.btnGrade);
 			Button btnSubmitGrades = FindViewById<Button> (Resource.Id.btnSubmitGrades);
+
+			UpdateCounter ();
+
 			Button btnDeleteSavedGrades = FindViewById<Button> (Resource.Id.btnDeleteSavedGrades);
 
 			btnGrade.Click += delegate {
@@ -71,16 +69,50 @@ namespace APlus
 
 			btnSubmitGrades.Click += delegate {
 				ThreadPool.QueueUserWorkItem (o => {
+					RunOnUiThread(() => btnSubmitGrades.Enabled = false);
+
 					while (!_checkedStatus)
 						Thread.Sleep (100);
-
-					ScannedCodesCollection.Sync();
+					
+					try
+					{ 
+						ScannedCodesCollection.Sync(); 
+					}
+					finally
+					{ 
+						RunOnUiThread(() => {
+							btnSubmitGrades.Enabled = true;
+							UpdateCounter();
+						}); 
+					}
 				});
 			};	
 
 			btnDeleteSavedGrades.Click += delegate {
 				ScannedCodesCollection.DeleteAllCodes();
+				UpdateCounter();
 			};
+		}
+
+		private void UpdateCounter()
+		{
+			if (this.Title != "APlus Teacher Panel")
+				return;
+			
+			string alreadyUpdatedRegex = @".*\([0-9]+\)";
+			string counterRegex = @"(?!.*\()[0-9]+(?=\))";
+
+			Button btnSubmitGrades = FindViewById<Button> (Resource.Id.btnSubmitGrades);
+			int codesCount = ScannedCodesCollection.CodesCount ();
+
+			if (Regex.IsMatch (btnSubmitGrades.Text, alreadyUpdatedRegex))
+			{
+				btnSubmitGrades.Text = Regex.Replace(btnSubmitGrades.Text, counterRegex, codesCount.ToString());
+			} 
+			else
+			{
+				btnSubmitGrades.Text += string.Format (" ({0})", codesCount);
+			}
 		}
 
 		private void InitializeStudent ()
@@ -132,20 +164,6 @@ namespace APlus
 			RunOnUiThread (() => listView.Adapter = adapter);
 
 			ResponseManager.DismissLoading ();
-		}
-
-		protected override void OnActivityResult (int requestCode, Result resultCode, Intent data)
-		{
-			if (data == null)
-				return;
-
-			if (requestCode == 1)
-			{
-				if (data.GetStringExtra ("error") == null)
-					_pendingMessage = data.GetStringExtra ("reply");
-				else
-					_pendingMessage = data.GetStringExtra ("error");
-			}
 		}
 
 		private void CheckLogin ()
