@@ -61,16 +61,25 @@ namespace APlus
 			this.ActionBar.NavigationMode = ActionBarNavigationMode.Standard;
 			this.Title = "APlus Teacher Panel";
 
-			Button btnGradeIndividual = FindViewById<Button> (Resource.Id.btnGradeIndividual);
+			Button btnGrade = FindViewById<Button> (Resource.Id.btnGrade);
+			Button btnSubmitGrades = FindViewById<Button> (Resource.Id.btnSubmitGrades);
+			Button btnDeleteSavedGrades = FindViewById<Button> (Resource.Id.btnDeleteSavedGrades);
 
-			btnGradeIndividual.Click += (object sender, EventArgs e) => {
-				if (Functions.IsOffline ())
-				{
-					ResponseManager.ShowMessage ("Error", "Cannot complete action while offline.");
-					return;
-				}
-
+			btnGrade.Click += delegate {
 				StartActivityForResult (typeof(ScanCodeActivity), 1);
+			};		
+
+			btnSubmitGrades.Click += delegate {
+				ThreadPool.QueueUserWorkItem (o => {
+					while (!_checkedStatus)
+						Thread.Sleep (100);
+
+					ScannedCodesCollection.Sync();
+				});
+			};	
+
+			btnDeleteSavedGrades.Click += delegate {
+				ScannedCodesCollection.DeleteAllCodes();
 			};
 		}
 
@@ -107,6 +116,7 @@ namespace APlus
 			{
 				StartActivity (typeof(LoginActivity));
 				Finish ();
+				return;
 			}
 
 			string[] reply = Regex.Split (rawReply, "<br>").TrimArray ();
@@ -170,15 +180,10 @@ namespace APlus
 		{
 			if (item.ItemId == Resource.Id.action_settings)
 			{
-				if (Functions.IsOffline ())
-				{
-					ResponseManager.ShowMessage ("Error", "Cannot complete action while offline.");
-					return base.OnOptionsItemSelected (item);
-				}
-
 				ResponseManager.ShowLoading ("Logging out...");
 				ThreadPool.QueueUserWorkItem (o => DoLogout ());
-			} else if (item.ItemId == Resource.Id.action_refresh)
+			} 
+			else if (item.ItemId == Resource.Id.action_refresh)
 			{
 				if (Functions.IsOffline ())
 				{
@@ -195,6 +200,13 @@ namespace APlus
 
 		private static void DoLogout ()
 		{
+			if (Functions.IsOffline ())
+			{
+				Functions.CurrentContext.StartActivity (typeof(LoginActivity));
+				Functions.CurrentContext.Finish (); // Rest of log in data cleared in constructor
+				return;
+			}
+
 			var data = new NameValueCollection ();
 			data.Add ("logout", string.Empty);
 
@@ -202,7 +214,7 @@ namespace APlus
 			if (response == "Logged out successfully" || response == "Not logged in!")
 			{
 				Functions.CurrentContext.StartActivity (typeof(LoginActivity));
-				Functions.CurrentContext.Finish ();
+				Functions.CurrentContext.Finish (); // Rest of log in data cleared in constructor
 			} else
 			{
 				ResponseManager.ShowMessage ("Error", response);

@@ -1,4 +1,6 @@
 ﻿using Android.App;
+using Android.Views;
+using Android.Widget;
 
 namespace APlus
 {
@@ -34,8 +36,13 @@ namespace APlus
 		{
 			Functions.CurrentContext.RunOnUiThread (() => {
 				_alertDialog = new AlertDialog.Builder (Functions.CurrentContext);
+
+				View view = Functions.CurrentContext.LayoutInflater.Inflate(Resource.Layout.ScrollableAlert, null);
+				TextView textView = view.FindViewById<TextView> (Resource.Id.textView);
+				textView.Text = message;
+				_alertDialog.SetView(view);
+
 				_alertDialog.SetTitle (title);
-				_alertDialog.SetMessage (message);
 				_alertDialog.SetCancelable (false);
 				_alertDialog.SetPositiveButton ("OK", delegate {
 				});

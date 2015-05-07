@@ -34,6 +34,26 @@ namespace APlus
 
 		private void btnRegister_OnClick(object sender, EventArgs e)
 		{
+			if (string.IsNullOrWhiteSpace (_txtEmail.Text) || string.IsNullOrWhiteSpace (_txtPassword.Text) ||
+			    string.IsNullOrWhiteSpace (_txtPassword2.Text) || string.IsNullOrWhiteSpace (_txtFirstName.Text) ||
+			    string.IsNullOrWhiteSpace (_txtLastName.Text) || string.IsNullOrWhiteSpace (_txtClass.Text))
+			{
+				ResponseManager.ShowMessage ("Error", "Information is missing!");
+				return;
+			}
+
+			if (_txtPassword.Text.Length < 6)
+			{
+				ResponseManager.ShowMessage ("Error", "Password must be at least 6 characters long!");
+				return;
+			}
+
+			if (_txtPassword.Text != _txtPassword2.Text)
+			{
+				ResponseManager.ShowMessage ("Error", "Passwords don't match!");
+				return;
+			}
+
 			ThreadPool.QueueUserWorkItem (o => DoRegister (sender, e));
 		}
 

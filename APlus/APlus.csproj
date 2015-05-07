@@ -63,6 +63,7 @@
     <Compile Include="GradesAdapter.cs" />
     <Compile Include="ResponseManager.cs" />
     <Compile Include="RegisterActivity.cs" />
+    <Compile Include="ScannedCode.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />
@@ -89,6 +90,9 @@
     <AndroidResource Include="Resources\drawable-xhdpi\ic_action_refresh.png" />
     <AndroidResource Include="Resources\drawable-xxhdpi\ic_action_refresh.png" />
     <AndroidResource Include="Resources\layout\Register.axml" />
+    <AndroidResource Include="Resources\drawable-hdpi\myButtonRed.xml" />
+    <AndroidResource Include="Resources\drawable-hdpi\myButtonBlue.xml" />
+    <AndroidResource Include="Resources\layout\ScrollableAlert.axml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />
   <ItemGroup />

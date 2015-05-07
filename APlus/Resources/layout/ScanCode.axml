@@ -32,7 +32,8 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/seekBarGrade"
                 android:id="@+id/txtViewGrade"
-                android:layout_centerHorizontal="true" />
+                android:layout_centerHorizontal="true"
+                android:textSize="50dp" />
             <TextView
                 android:text="Subject"
                 android:textAppearance="?android:attr/textAppearanceLarge"
@@ -51,14 +52,26 @@
                 android:layout_marginRight="55dp"
                 android:layout_below="@id/textView1"
                 android:layout_marginTop="0.0dp" />
-            <Button
-                android:text="Commit"
+            <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/editTextSubject"
-                android:id="@+id/btnGradeCommit"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="40dp" />
+                android:layout_marginTop="60dp"
+                android:layout_centerInParent="true">
+                <Button
+                    android:text="Finish"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/btnFinish" />
+                <Button
+                    android:text="Next"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toRightOf="@id/btnFinish"
+                    android:id="@+id/btnNext"
+                    android:layout_alignTop="@id/btnFinish"
+                    android:layout_marginLeft="50dp" />
+            </RelativeLayout>
         </RelativeLayout>
     </ScrollView>
 </RelativeLayout>

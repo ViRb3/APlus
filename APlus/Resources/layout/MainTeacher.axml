@@ -5,28 +5,47 @@
     p1:layout_width="match_parent"
     p1:layout_height="match_parent"
     p1:id="@+id/relativeLayout1">
-    <Button
-        p1:text="Grade class"
+    <ScrollView
         p1:layout_width="match_parent"
-        p1:layout_height="57dp"
-        p1:id="@+id/btnGradeClass"
-        p1:layout_centerHorizontal="true"
-        p1:layout_marginTop="30dp"
-        p1:textAllCaps="true"
-        p1:textSize="20dp"
-        p1:textColor="#ffffff"
-        p1:background="@drawable/myButton"
-        p1:visibility="gone" />
-    <Button
-        p1:text="Grade individual"
-        p1:layout_width="match_parent"
-        p1:layout_height="57dp"
-        p1:id="@+id/btnGradeIndividual"
-        p1:layout_marginTop="10dp"
-        p1:layout_below="@id/btnGradeClass"
-        p1:layout_centerHorizontal="true"
-        p1:textAllCaps="true"
-        p1:textSize="20dp"
-        p1:textColor="#ffffff"
-        p1:background="@drawable/myButton" />
+        p1:layout_height="match_parent">
+        <RelativeLayout
+            p1:layout_width="match_parent"
+            p1:layout_height="match_parent">
+            <Button
+                p1:text="Grade"
+                p1:layout_width="match_parent"
+                p1:layout_height="57dp"
+                p1:id="@+id/btnGrade"
+                p1:layout_marginTop="10dp"
+                p1:layout_centerHorizontal="true"
+                p1:textAllCaps="true"
+                p1:textSize="20dp"
+                p1:textColor="#ffffff"
+                p1:background="@drawable/myButton" />
+            <Button
+                p1:text="Submit grades"
+                p1:layout_width="match_parent"
+                p1:layout_height="57dp"
+                p1:layout_below="@id/btnGrade"
+                p1:id="@+id/btnSubmitGrades"
+                p1:layout_marginTop="50dp"
+                p1:layout_centerHorizontal="true"
+                p1:textAllCaps="true"
+                p1:textSize="20dp"
+                p1:textColor="#ffffff"
+                p1:background="@drawable/myButtonBlue" />
+            <Button
+                p1:text="Delete saved grades"
+                p1:layout_width="match_parent"
+                p1:layout_height="57dp"
+                p1:layout_below="@id/btnSubmitGrades"
+                p1:id="@+id/btnDeleteSavedGrades"
+                p1:layout_marginTop="10dp"
+                p1:layout_centerHorizontal="true"
+                p1:textAllCaps="true"
+                p1:textSize="20dp"
+                p1:textColor="#ffffff"
+                p1:background="@drawable/myButtonRed" />
+        </RelativeLayout>
+    </ScrollView>
 </RelativeLayout>

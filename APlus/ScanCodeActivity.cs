@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Specialized;
-using System.Threading;
 
 using Android.App;
 using Android.Content;
@@ -15,11 +13,11 @@ namespace APlus
 	{
 		private SeekBar _seekBarGrade;
 		private TextView _txtViewGrade;
-		private Button _btnGradeCommit;
 		private EditText _editTextSubject;
 
 		private string _qrCode;
 		private bool _scannedCode;
+		private bool _codeAlreadyUsed;
 
 		protected override void OnCreate (Bundle bundle)
 		{
@@ -27,8 +25,27 @@ namespace APlus
 			Functions.CurrentContext = this;
 			SetContentView (Resource.Layout.ScanCode);
 
+			_txtViewGrade = FindViewById<TextView> (Resource.Id.txtViewGrade);
+			_editTextSubject = FindViewById<EditText> (Resource.Id.editTextSubject);
+
+			_seekBarGrade = FindViewById<SeekBar> (Resource.Id.seekBarGrade);
+			_seekBarGrade.ProgressChanged += seekBar_ProgressChanged;
+
+			_editTextSubject.Text = this.Intent.GetStringExtra ("subject");
+
 			if (bundle != null)
+			{
+				_qrCode = bundle.GetString ("qrCode");
 				_scannedCode = bundle.GetBoolean ("scannedCode");
+				_codeAlreadyUsed = bundle.GetBoolean ("codeAlreadyUsed");
+			}
+
+			if (_codeAlreadyUsed)
+			{
+				ScannedCode code = ScannedCodesCollection.GetFullCodeFromCode (_qrCode);
+				ThrowError (string.Format("Code has already been graded at {0} with {1}!", code.Subject, code.Grade));
+				return;
+			}
 
 			if (!IsPackageInstalled ("la.droid.qr", this))
 			{
@@ -54,12 +71,6 @@ namespace APlus
 				StartActivityForResult (qrDroid, 1);
 			}
 
-			_txtViewGrade = FindViewById<TextView> (Resource.Id.txtViewGrade);
-			_editTextSubject = FindViewById<EditText> (Resource.Id.editTextSubject);
-
-			_seekBarGrade = FindViewById<SeekBar> (Resource.Id.seekBarGrade);
-			_seekBarGrade.ProgressChanged += seekBar_ProgressChanged;
-
 			if (bundle != null)
 			{
 				_seekBarGrade.Progress = bundle.GetInt ("grade") - 2;
@@ -67,8 +78,11 @@ namespace APlus
 				_qrCode = bundle.GetString ("qrCode");
 			}
 
-			_btnGradeCommit = FindViewById<Button> (Resource.Id.btnGradeCommit);
-			_btnGradeCommit.Click += Commit;
+			Button btnFinish = FindViewById<Button> (Resource.Id.btnFinish);
+			btnFinish.Click += Finish;
+
+			Button btnNext = FindViewById<Button> (Resource.Id.btnNext);
+			btnNext.Click += Next;
 		}
 
 		protected override void OnResume ()
@@ -79,53 +93,39 @@ namespace APlus
 
 		protected override void OnSaveInstanceState (Bundle bundle)
 		{
+			bundle.PutBoolean ("codeAlreadyUsed", _codeAlreadyUsed);
 			bundle.PutBoolean ("scannedCode", _scannedCode);
 			bundle.PutInt ("grade", int.Parse (_txtViewGrade.Text));
 			bundle.PutString ("subject", _editTextSubject.Text);
 			bundle.PutString ("qrCode", _qrCode);
 		}
 
-		private void Commit (object sender, EventArgs e)
+		private void Finish (object sender, EventArgs e)
 		{
 			if (string.IsNullOrWhiteSpace (_editTextSubject.Text))
 			{
 				ResponseManager.ShowMessage ("Error", "Subject cannot be empty!");
 				return;
 			}
-
-			if (Functions.IsOffline ())
-			{
-				ResponseManager.ShowMessage ("Error", "Cannot complete action while offline.");
-				return;
-			}
-
-			ResponseManager.ShowLoading ("Saving grade...");
-			ThreadPool.QueueUserWorkItem (o => DoCommit ());
-		}
-
-		private void DoCommit ()
-		{
-			Intent resultData;
-
-			var data = new NameValueCollection ();
-			data.Add ("newgrade", string.Empty);
-			data.Add ("subject", _editTextSubject.Text);
-			data.Add ("grade", _txtViewGrade.Text);
-			data.Add ("code", _qrCode);
-
-			string reply = WebFunctions.Request (data);
-
-			if (string.IsNullOrWhiteSpace (reply) || reply == "Error")
-			{
-				ThrowError ();
-				return;
-			}
-
-			resultData = new Intent ();
-			resultData.PutExtra ("reply", reply);
-			SetResult (Result.Ok, resultData);
+				
+			ScannedCode code = new ScannedCode (_editTextSubject.Text, int.Parse (_txtViewGrade.Text), _qrCode);
+			ScannedCodesCollection.AddCode (code);
 			Finish ();
 		}
+
+		private void Next (object sender, EventArgs e)
+		{
+			ScannedCode code = new ScannedCode (_editTextSubject.Text, int.Parse (_txtViewGrade.Text), _qrCode);
+			ScannedCodesCollection.AddCode(code);
+
+			Intent intent = new Intent (this, typeof(ScanCodeActivity));
+			Bundle bundle = new Bundle ();
+			bundle.PutString ("subject", _editTextSubject.Text);
+			intent.PutExtras (bundle);
+
+			StartActivity(intent);
+			Finish ();
+		}			
 
 		private void GetQRDroid ()
 		{
@@ -161,8 +161,17 @@ namespace APlus
 				return;
 			}
 
-			_scannedCode = true;
 			_qrCode = result;
+
+			if (ScannedCodesCollection.CodeExists (result))
+			{
+				_codeAlreadyUsed = true;
+				ScannedCode code = ScannedCodesCollection.GetFullCodeFromCode (_qrCode);
+				ThrowError (string.Format("Code has already been graded at {0} with {1}!", code.Subject, code.Grade));
+				return;
+			}
+
+			_scannedCode = true;
 		}
 
 		private void ThrowError (string message = "Invalid QR code scanned!")
@@ -174,16 +183,17 @@ namespace APlus
 			builder.SetNeutralButton ("OK", delegate {
 				Finish ();
 			});
+
 			builder.Show ();
 		}
 
 		private bool IsPackageInstalled (String packageName, Context context)
 		{
-			PackageManager pm = context.PackageManager;
+			PackageManager packageManager = context.PackageManager;
 
 			try
 			{
-				pm.GetPackageInfo (packageName, PackageInfoFlags.Activities);
+				packageManager.GetPackageInfo (packageName, PackageInfoFlags.Activities);
 				return true;
 			} catch (PackageManager.NameNotFoundException)
 			{

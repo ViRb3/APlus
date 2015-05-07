@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Collections.Specialized;
 using System.Collections.Generic;
+using System.Linq;
 
 using Android.App;
 using Android.Content;
@@ -13,6 +14,32 @@ namespace APlus
 	public static class Functions
 	{
 		public static Activity CurrentContext;
+		static Random _random = new Random();
+
+		public static string[] ShuffleArray(this string[] array)
+		{
+			List<KeyValuePair<int, string>> list = new List<KeyValuePair<int, string>>();
+
+			foreach (string @string in array)
+			{
+				list.Add(new KeyValuePair<int, string>(_random.Next(), @string));
+			}
+
+			var sorted = from item in list
+				orderby item.Key
+				select item;
+
+			string[] result = new string[array.Length];
+
+			int index = 0;
+			foreach (KeyValuePair<int, string> pair in sorted)
+			{
+				result[index] = pair.Value;
+				index++;
+			}
+
+			return result;
+		}
 
 		public static bool IsOffline ()
 		{
@@ -92,6 +119,20 @@ namespace APlus
 			preferencesEditor.Commit ();
 		}
 
+		public static void SaveSettings (string settingName, string subSettingName, string[] values)
+		{
+
+			var preferences = Application.Context.GetSharedPreferences (settingName, FileCreationMode.Private);
+			var preferencesEditor = preferences.Edit ();
+
+			preferencesEditor.PutInt(subSettingName +"_size", values.Length);
+
+			for(int i = 0; i < values.Length; i++)  
+				preferencesEditor.PutString(subSettingName + "_" + i, values[i]);  
+
+			preferencesEditor.Commit ();
+		}
+
 		public static string GetSetting (string settingName, string subSettingName)
 		{
 			var preferences = Application.Context.GetSharedPreferences (settingName, FileCreationMode.Private);
@@ -100,12 +141,26 @@ namespace APlus
 			return setting;
 		}
 
+		public static string[] GetSettings (string settingName, string subSettingName)
+		{
+			var preferences = Application.Context.GetSharedPreferences (settingName, FileCreationMode.Private);
+
+			int size = preferences.GetInt(subSettingName + "_size", 0);  
+			String[] settings = new string[size]; 
+
+			for(int i = 0; i < size; i++)  
+				settings[i] = preferences.GetString(subSettingName + "_" + i, null);  
+
+			return settings;
+		}
+
 		public static string[] TrimArray (this string[] array)
 		{
 			List<string> listArray = new List<string> (array);
 
-			while (listArray.Count - 1 >= 0 && string.IsNullOrWhiteSpace(listArray[listArray.Count - 1]))
-				listArray.RemoveAt (listArray.Count - 1);
+			for (int i = array.Length - 1; i >= 0; i--)
+				if (string.IsNullOrWhiteSpace(listArray[i]))
+					listArray.RemoveAt (i);
 
 			return listArray.ToArray ();
 		}
