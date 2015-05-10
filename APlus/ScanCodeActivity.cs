@@ -37,15 +37,12 @@ namespace APlus
 			if (bundle != null)
 			{
 				_qrCode = bundle.GetString ("qrCode");
-				_scannedCode = bundle.GetBoolean ("scannedCode");
+				_scannedCode = !string.IsNullOrEmpty (_qrCode);
 				_codeAlreadyUsed = bundle.GetBoolean ("codeAlreadyUsed");
 			}
 
 			if (_codeAlreadyUsed)
-			{
 				ShowCodeAlreadyScannedDialog();
-				return;
-			}
 
 			if (!IsPackageInstalled ("la.droid.qr", this))
 			{
@@ -89,7 +86,6 @@ namespace APlus
 		protected override void OnSaveInstanceState (Bundle bundle)
 		{
 			bundle.PutBoolean ("codeAlreadyUsed", _codeAlreadyUsed);
-			bundle.PutBoolean ("scannedCode", _scannedCode);
 			bundle.PutInt ("grade", int.Parse (_txtViewGrade.Text));
 			bundle.PutString ("subject", _editTextSubject.Text);
 			bundle.PutString ("qrCode", _qrCode);

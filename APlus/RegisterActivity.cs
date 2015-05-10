@@ -61,13 +61,13 @@ namespace APlus
 		{
 			if (Functions.IsOffline ())
 			{
-				RunOnUiThread (() => ResponseManager.ShowMessage ("Error", "No internet connection!"));
+				ResponseManager.ShowMessage ("Error", "No internet connection!");
 				return;
 			}
 
 			if (_txtPassword.Text != _txtPassword2.Text)
 			{
-				RunOnUiThread (() => ResponseManager.ShowMessage ("Error", "Passwords do not match!"));
+				ResponseManager.ShowMessage ("Error", "Passwords do not match!");
 				return;
 			}
 
@@ -87,7 +87,7 @@ namespace APlus
 
 			if (reply != "Account created!")
 			{
-				RunOnUiThread (() => ResponseManager.ShowMessage ("Error", reply));
+				ResponseManager.ShowMessage ("Error", reply);
 				WebFunctions.ClearCookies ();
 				return;
 			}	

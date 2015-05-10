@@ -50,7 +50,7 @@ namespace APlus
 		{
 			if (Functions.IsOffline ())
 			{
-				RunOnUiThread (() => ResponseManager.ShowMessage ("Error", "No internet connection!"));
+				ResponseManager.ShowMessage ("Error", "No internet connection!");
 				return;
 			}
 
@@ -66,7 +66,7 @@ namespace APlus
 			if (reply != "Login success!")
 			{
 				ResponseManager.DismissLoading (); 
-				RunOnUiThread (() => ResponseManager.ShowMessage ("Error", reply));
+				ResponseManager.ShowMessage ("Error", reply);
 				WebFunctions.ClearCookies ();
 				return;
 			}	
@@ -79,7 +79,7 @@ namespace APlus
 			if (reply != "student" && reply != "teacher")
 			{
 				ResponseManager.DismissLoading (); 
-				RunOnUiThread (() => ResponseManager.ShowMessage ("Error", "Unrecognized account type!"));
+				ResponseManager.ShowMessage ("Error", "Unrecognized account type!");
 				WebFunctions.ClearCookies ();
 				return;
 			}		

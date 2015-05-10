@@ -9,6 +9,7 @@ namespace APlus
 		public static bool ShowLoading (string message)
 		{
 			Functions.CurrentContext.RunOnUiThread (() => {
+				Functions.CurrentContext.RequestedOrientation = Android.Content.PM.ScreenOrientation.Locked;
 				_progressDialog = new ProgressDialogFragment();
 				_progressDialog.Initialize(message, string.Empty);
 				_progressDialog.Show();
@@ -24,6 +25,7 @@ namespace APlus
 
 			_progressDialog.Dismiss ();
 			_progressDialog = null;
+			Functions.CurrentContext.RequestedOrientation = Android.Content.PM.ScreenOrientation.User;
 			return true;
 		}
 
