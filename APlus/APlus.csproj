@@ -100,15 +100,25 @@
     <AndroidResource Include="Resources\layout\MainTeacher.axml" />
     <AndroidResource Include="Resources\layout\MainStudent.axml" />
     <AndroidResource Include="Resources\layout\ScanCode.axml" />
-    <AndroidResource Include="Resources\drawable-hdpi\ic_action_refresh.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\ic_action_refresh.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\ic_action_refresh.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\ic_action_refresh.png" />
     <AndroidResource Include="Resources\layout\Register.axml" />
     <AndroidResource Include="Resources\drawable-hdpi\myButtonRed.xml" />
     <AndroidResource Include="Resources\drawable-hdpi\myButtonBlue.xml" />
     <AndroidResource Include="Resources\layout\ScrollableAlert.axml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />
-  <ItemGroup />
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-hdpi\ic_refresh_black_24dp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-mdpi\ic_refresh_black_24dp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-xhdpi\ic_refresh_black_24dp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-xxhdpi\ic_refresh_black_24dp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable-xxxhdpi\ic_refresh_black_24dp.png" />
+  </ItemGroup>
 </Project>
